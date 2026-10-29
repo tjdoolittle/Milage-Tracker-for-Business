@@ -1,0 +1,61 @@
+# XcodeGen spec. CI runs `xcodegen generate` to produce MileageLog.xcodeproj,
+# so the Xcode project is never edited by hand and never committed.
+name: MileageLog
+options:
+  bundleIdPrefix: com.tjdoolittle
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.0"
+    DEVELOPMENT_TEAM: ""
+targets:
+  MileageLog:
+    type: application
+    platform: iOS
+    sources:
+      - path: MileageLog
+    info:
+      path: MileageLog/Info.plist
+      properties:
+        CFBundleDisplayName: Mileage Log
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSRequiresIPhoneOS: true
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UIBackgroundModes:
+          - location
+        UIAppFonts:
+          - Overpass-ExtraBold.ttf
+          - Overpass-Bold.ttf
+          - OverpassMono-SemiBold.ttf
+          - AtkinsonHyperlegible-Regular.ttf
+          - AtkinsonHyperlegible-Bold.ttf
+        NSLocationWhenInUseUsageDescription: Mileage Log uses your location to measure the miles of trips you start.
+        NSLocationAlwaysAndWhenInUseUsageDescription: With Always access, Mileage Log can notice when you start driving and measure the trip with your phone in your pocket. Your location never leaves your phone.
+        NSMotionUsageDescription: Mileage Log uses motion data to tell when you're driving, so it can start and stop trips automatically.
+        ITSAppUsesNonExemptEncryption: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.tjdoolittle.mileagelog
+        PRODUCT_NAME: MileageLog
+        TARGETED_DEVICE_FAMILY: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        GENERATE_INFOPLIST_FILE: NO
+        ENABLE_PREVIEWS: NO
+        CODE_SIGN_STYLE: Automatic
+schemes:
+  MileageLog:
+    build:
+      targets:
+        MileageLog: all
+    run:
+      config: Debug
+    archive:
+      config: Release
