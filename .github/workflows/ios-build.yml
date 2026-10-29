@@ -6,8 +6,7 @@ name: iOS build and screenshots
 # so they can be reviewed without opening the Actions UI.
 #
 
-# The repo is private, where macOS minutes count 10x, so this only runs when
-# the iPhone app (or this workflow) changes.
+# Runs when the iPhone app (or this workflow) changes. macOS minutes are free on public repos.
 on:
   push:
     branches: [main]

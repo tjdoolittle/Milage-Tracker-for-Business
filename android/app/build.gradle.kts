@@ -21,24 +21,28 @@ android {
         versionName = "1.1.$ciRun"
     }
 
+    // The signing key is NOT in the repo. CI writes it from the ANDROID_KEYSTORE_BASE64 secret to
+    // app/mileage-log.jks and passes its password in ANDROID_KEYSTORE_PASSWORD. Every build must use
+    // this same key, or Android refuses to install the update over the app (and its trips).
+    val keystore = file("mileage-log.jks")
+    val keystorePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+    val canSign = keystore.exists() && !keystorePassword.isNullOrEmpty()
+
     signingConfigs {
-        // One fixed key in the repo so updates install over earlier builds without losing trips.
-        // This is a sideload key for personal use. Replace it before publishing to the Play Store.
-        create("sideload") {
-            storeFile = file("mileage-log.jks")
-            storePassword = "mileagelog"
-            keyAlias = "mileage"
-            keyPassword = "mileagelog"
+        if (canSign) {
+            create("sideload") {
+                storeFile = keystore
+                storePassword = keystorePassword
+                keyAlias = "mileage"
+                keyPassword = keystorePassword
+            }
         }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
-            signingConfig = signingConfigs.getByName("sideload")
-        }
-        debug {
-            signingConfig = signingConfigs.getByName("sideload")
+            if (canSign) signingConfig = signingConfigs.getByName("sideload")
         }
     }
 

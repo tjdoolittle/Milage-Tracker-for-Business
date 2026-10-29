@@ -30,16 +30,33 @@ jobs:
         with:
           gradle-version: "8.11.1"
 
+      - name: Write the signing key
+        working-directory: android
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_B64" ] || [ -z "$KEYSTORE_PASSWORD" ]; then
+            echo "::error::ANDROID_KEYSTORE_BASE64 and ANDROID_KEYSTORE_PASSWORD secrets are not set. See android/README.md (Signing)."
+            exit 1
+          fi
+          echo "$KEYSTORE_B64" | base64 --decode > app/mileage-log.jks
+
       - name: Build signed APK
         working-directory: android
         shell: bash
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
         run: |
           set -o pipefail
           gradle assembleRelease --no-daemon --stacktrace 2>&1 | tee build.log
 
       - name: Name the APK
         working-directory: android
-        run: cp app/build/outputs/apk/release/app-release.apk "MileageLog-1.1.${{ github.run_number }}.apk"
+        run: |
+          rm -f app/mileage-log.jks
+          test -f app/build/outputs/apk/release/app-release.apk || { echo "::error::No signed APK was produced"; exit 1; }
+          cp app/build/outputs/apk/release/app-release.apk "MileageLog-1.1.${{ github.run_number }}.apk"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -60,6 +77,7 @@ jobs:
         if: failure()
         shell: bash
         run: |
+          rm -f android/app/mileage-log.jks
           cp android/build.log /tmp/build.log 2>/dev/null || echo "No build log" > /tmp/build.log
           grep -nE "^e: |^w: .*error|error:|What went wrong|FAILURE|Could not" -A4 /tmp/build.log > /tmp/errors.txt || true
           git config user.name "ci"

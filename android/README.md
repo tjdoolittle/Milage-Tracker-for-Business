@@ -13,8 +13,7 @@ so you can move your trips between them.
 The app isn't on the Play Store. You install the APK directly ("sideloading").
 
 1. On your Android phone, open this repo's
-   [Releases page](https://github.com/tjdoolittle/Milage-Tracker-for-Business/releases) while
-   signed in to GitHub (the repo is private).
+   [Releases page](https://github.com/tjdoolittle/Milage-Tracker-for-Business/releases).
 2. Open the newest **Mileage Log for Android** release and tap
    `MileageLog-1.0.N.apk` to download it.
 3. Open the downloaded file. Android will ask to allow installs from your
@@ -23,6 +22,12 @@ The app isn't on the Play Store. You install the APK directly ("sideloading").
 4. If Google Play Protect warns about an unknown app, tap **More details**,
    then **Install anyway**. It warns about every app that isn't from the Play
    Store.
+
+**Switching to the new signing key (one time):** releases from October 30,
+2026 on are signed with a new key. If you installed an earlier version, Android
+will refuse the update. Open Mileage Log, tap the gear, tap **Save backup**,
+uninstall the app, install the new APK, then tap **Restore** and pick the backup.
+You only do this once; later updates install normally.
 
 **Updating:** download the newest release and install it the same way. It
 installs over the old version and keeps your trips. Every push to this repo
@@ -100,6 +105,20 @@ app's private storage.
 | `.github/workflows/android.yml` (repo root) | Builds the signed APK and publishes the release |
 
 Build locally with Android Studio, or `gradle assembleRelease` with Gradle 8.11
-and JDK 17. The APK is signed with `app/mileage-log.jks` so updates install over
-each other. That key is meant for personal sideloading; create a new one and
-keep it out of the repo before publishing to the Play Store.
+and JDK 17. A local build without the signing key produces an unsigned APK,
+which is fine for testing on an emulator.
+
+### Signing
+
+Every release must be signed with the same key, or Android won't install the
+update over the app (and its trips). The key is **not** in this repo. CI reads it
+from two Actions secrets:
+
+| Secret | Value |
+| --- | --- |
+| `ANDROID_KEYSTORE_BASE64` | the keystore file `mileage-log.jks`, base64-encoded |
+| `ANDROID_KEYSTORE_PASSWORD` | its password (the key uses the same one) |
+
+Keep a copy of `mileage-log.jks` and its password somewhere safe, like a
+password manager. If they're lost, a new key means uninstalling the app (save a
+backup first) before installing the next release.

@@ -35,5 +35,6 @@ All three use the same backup file format, so trips move between them
 | `iOS build and screenshots` | a push changes `ios/` | Simulator build check plus screenshots on the `ci-ios` branch |
 | `iOS release` | you start it from the Actions tab | Signed build uploaded to TestFlight |
 
-This repo is private, so GitHub counts macOS build minutes at 10x. That's why
-the iOS workflows only run when the iPhone code changes or when you start them.
+The repo is public, so GitHub Actions minutes (including the Mac builds for
+iPhone) are free. No keys or passwords are in the code: the Android signing key
+and the Apple signing files live in the repo's Actions secrets.
