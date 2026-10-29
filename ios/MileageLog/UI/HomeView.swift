@@ -113,10 +113,10 @@ struct HomeView: View {
                     Button("Finish trip") {
                         if let id = tracker.finish() { router.open(tripId: id) }
                     }
-                    .buttonStyle(BigButtonStyle(kind: .amber)).layoutPriority(1)
+                    .buttonStyle(BigButtonStyle(kind: .amber))
                 } else {
                     Button("Start trip") { tracker.startManual() }.buttonStyle(BigButtonStyle(kind: .outline))
-                    Button("+ Log trip") { router.newTrip() }.buttonStyle(BigButtonStyle(kind: .primary)).layoutPriority(1)
+                    Button("+ Log trip") { router.newTrip() }.buttonStyle(BigButtonStyle(kind: .primary))
                 }
             }
             .padding(.horizontal, 16)
@@ -153,9 +153,9 @@ struct SignCard: View {
             Odometer(miles: miles)
             Rectangle().fill(Palette.signInk.opacity(0.35)).frame(height: 1.5)
             HStack(alignment: .top, spacing: 10) {
-                stat(Fmt.money(deduction), "Deduction").frame(maxWidth: .infinity, alignment: .leading).layoutPriority(1.5)
+                stat(Fmt.money(deduction), "Deduction").frame(maxWidth: .infinity, alignment: .leading)
                 stat(statMid, statMidLabel).frame(maxWidth: .infinity, alignment: .leading)
-                stat("\(trips)", "Trips").frame(width: 60, alignment: .leading)
+                stat("\(trips)", "Trips").frame(width: 58, alignment: .leading)
             }
             VStack(spacing: 4) {
                 let max = Swift.max(byMonth.max() ?? 0, 1)
