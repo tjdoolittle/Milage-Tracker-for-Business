@@ -36,6 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,25 +65,25 @@ fun TripEditor(trip: Trip, isNew: Boolean, onClose: () -> Unit) {
     val data = Store.data
     val reviewing = trip.status == Status.REVIEW
 
-    var date by remember { mutableStateOf(trip.date) }
-    var odoMode by remember { mutableStateOf(trip.odoStart != null && trip.source == null) }
-    var roundTrip by remember { mutableStateOf(trip.roundTrip) }
-    var miles by remember {
+    var date by rememberSaveable { mutableStateOf(trip.date) }
+    var odoMode by rememberSaveable { mutableStateOf(trip.odoStart != null && trip.source == null) }
+    var roundTrip by rememberSaveable { mutableStateOf(trip.roundTrip) }
+    var miles by rememberSaveable {
         mutableStateOf(when {
             trip.miles <= 0 -> ""
             trip.roundTrip -> fmt(trip.miles / 2)
             else -> fmt(trip.miles)
         })
     }
-    var odo1 by remember { mutableStateOf(trip.odoStart?.let(::fmt) ?: "") }
-    var odo2 by remember { mutableStateOf(trip.odoEnd?.let(::fmt) ?: "") }
-    var from by remember { mutableStateOf(trip.from) }
-    var to by remember { mutableStateOf(trip.to) }
-    var purpose by remember { mutableStateOf(trip.purpose) }
-    var client by remember { mutableStateOf(trip.client) }
-    var notes by remember { mutableStateOf(trip.notes) }
-    var error by remember { mutableStateOf<String?>(null) }
-    var confirmDelete by remember { mutableStateOf(false) }
+    var odo1 by rememberSaveable { mutableStateOf(trip.odoStart?.let(::fmt) ?: "") }
+    var odo2 by rememberSaveable { mutableStateOf(trip.odoEnd?.let(::fmt) ?: "") }
+    var from by rememberSaveable { mutableStateOf(trip.from) }
+    var to by rememberSaveable { mutableStateOf(trip.to) }
+    var purpose by rememberSaveable { mutableStateOf(trip.purpose) }
+    var client by rememberSaveable { mutableStateOf(trip.client) }
+    var notes by rememberSaveable { mutableStateOf(trip.notes) }
+    var error by rememberSaveable { mutableStateOf<String?>(null) }
+    var confirmDelete by rememberSaveable { mutableStateOf(false) }
 
     val computed: Double? = if (odoMode) {
         val a = parseNum(odo1); val b = parseNum(odo2)

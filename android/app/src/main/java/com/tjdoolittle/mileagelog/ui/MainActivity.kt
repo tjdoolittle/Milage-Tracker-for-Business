@@ -13,9 +13,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import com.tjdoolittle.mileagelog.data.Status
 import com.tjdoolittle.mileagelog.data.Store
@@ -41,14 +43,15 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         Store.init(this)
-        handleIntent(intent)
+        savedInstanceState?.getString(STATE_SCREEN)?.let { screen = decodeScreen(it) }
+        if (savedInstanceState == null) handleIntent(intent)
 
         setContent {
             MileageTheme {
                 val data by Store.state.collectAsState()
                 val live by Tracker.live.collectAsState()
                 val accuracy by TrackingService.accuracy.collectAsState()
-                var year by remember { mutableIntStateOf(Calendar.getInstance().get(Calendar.YEAR)) }
+                var year by rememberSaveable { mutableIntStateOf(Calendar.getInstance().get(Calendar.YEAR)) }
 
                 val askForTracking = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
                     if (hasLocation(this)) Tracker.startManual(this)
@@ -82,9 +85,37 @@ class MainActivity : ComponentActivity() {
                         onSettings = { screen = Screen.Settings },
                     )
                     Screen.Settings -> SettingsScreen(data, year, resumeTick) { screen = Screen.Home }
-                    is Screen.Editor -> TripEditor(s.trip, s.isNew) { screen = Screen.Home }
+                    // Keyed by trip, so opening a different trip (say, from a notification) starts a fresh form.
+                    is Screen.Editor -> key(s.trip.id) { TripEditor(s.trip, s.isNew) { screen = Screen.Home } }
                 }
             }
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString(STATE_SCREEN, encodeScreen(screen))
+    }
+
+    private fun encodeScreen(s: Screen): String = when (s) {
+        Screen.Home -> "home"
+        Screen.Settings -> "settings"
+        is Screen.Editor -> "editor|${s.trip.id}|${s.isNew}|${s.trip.date}"
+    }
+
+    private fun decodeScreen(v: String): Screen {
+        val p = v.split("|")
+        return when (p[0]) {
+            "settings" -> Screen.Settings
+            "editor" -> {
+                val id = p.getOrNull(1) ?: return Screen.Home
+                val isNew = p.getOrNull(2) == "true"
+                // A logged trip comes back from storage; a new one is rebuilt and the editor restores what was typed.
+                val trip = Store.data.trips.firstOrNull { it.id == id }
+                    ?: if (isNew) Trip(id = id, date = p.getOrNull(3) ?: Store.today(), miles = 0.0) else return Screen.Home
+                Screen.Editor(trip, isNew)
+            }
+            else -> Screen.Home
         }
     }
 
@@ -120,5 +151,6 @@ class MainActivity : ComponentActivity() {
     companion object {
         const val EXTRA_TRIP = "trip_id"
         const val EXTRA_START = "start_trip"
+        private const val STATE_SCREEN = "screen"
     }
 }

@@ -37,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -74,7 +75,7 @@ fun HomeScreen(
     val now = Calendar.getInstance()
     val curYear = now.get(Calendar.YEAR)
     val s = data.settings
-    var pickYear by remember { mutableStateOf(false) }
+    var pickYear by rememberSaveable { mutableStateOf(false) }
     val logged = data.trips.filter { it.status == Status.LOGGED && it.year == year }
         .sortedWith(compareByDescending<Trip> { it.date }.thenByDescending { it.startTime ?: it.createdAt })
     val review = data.trips.filter { it.status == Status.REVIEW }.sortedByDescending { it.startTime ?: it.createdAt }
