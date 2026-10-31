@@ -6,6 +6,12 @@ APK=android/app/build/outputs/apk/debug/app-debug.apk
 OUT=android/shots
 mkdir -p "$OUT"
 adb wait-for-device
+# Let the emulator finish starting up, and keep system "isn't responding" popups out of the shots.
+until [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = "1" ]; do sleep 2; done
+adb shell settings put global hide_error_dialogs 1
+adb shell settings put secure anr_show_background 0 2>/dev/null || true
+sleep 45
+adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS >/dev/null 2>&1 || true
 adb install -r "$APK"
 
 # Clean status bar: 9:41, full battery, full signal, no notifications.
@@ -21,8 +27,11 @@ demo notifications -e visible false
 shot() {
   name="$1"; shift
   adb shell am force-stop "$PKG"
+  adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS >/dev/null 2>&1 || true
   adb shell am start -W -n "$PKG/.ui.MainActivity" --ez demo true "$@" >/dev/null
   sleep 6
+  adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS >/dev/null 2>&1 || true
+  sleep 1
   adb exec-out screencap -p > "$OUT/$name.png"
   echo "captured $name"
 }
