@@ -11,12 +11,12 @@ val ciBuild = 100 + ciRun
 
 android {
     namespace = "com.tjdoolittle.mileagelog"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.tjdoolittle.mileagelog"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = ciBuild
         versionName = "1.1.$ciRun"
     }
@@ -55,6 +55,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

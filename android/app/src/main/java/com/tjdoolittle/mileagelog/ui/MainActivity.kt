@@ -19,6 +19,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import com.tjdoolittle.mileagelog.BuildConfig
+import com.tjdoolittle.mileagelog.data.DemoData
 import com.tjdoolittle.mileagelog.data.Status
 import com.tjdoolittle.mileagelog.data.Store
 import com.tjdoolittle.mileagelog.data.Trip
@@ -43,6 +45,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         Store.init(this)
+        if (BuildConfig.DEBUG && intent.getBooleanExtra("demo", false)) startDemo(intent)
         savedInstanceState?.getString(STATE_SCREEN)?.let { screen = decodeScreen(it) }
         if (savedInstanceState == null) handleIntent(intent)
 
@@ -124,9 +127,22 @@ class MainActivity : ComponentActivity() {
         handleIntent(intent)
     }
 
+    /** Debug-only screenshot mode: am start -n ... --ez demo true [--ez active true] [--es screen settings|editor] */
+    private fun startDemo(i: Intent) {
+        val active = i.getBooleanExtra("active", false)
+        Store.loadDemo(DemoData.make(active))
+        if (active) { Tracker.live.value = Store.data.active; TrackingService.demoAccuracy(5.0) }
+        screen = when (i.getStringExtra("screen")) {
+            "settings" -> Screen.Settings
+            "editor" -> Store.data.trips.firstOrNull { it.status == Status.REVIEW }?.let { Screen.Editor(it, isNew = false) } ?: Screen.Home
+            else -> Screen.Home
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         resumeTick++
+        if (Store.demo) return
         // A trip survives the app or phone restarting: pick tracking back up.
         val active = Store.data.active
         if (active != null && !TrackingService.running.value && hasLocation(this)) {

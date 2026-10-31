@@ -29,6 +29,12 @@ object Store {
     val state: StateFlow<AppData> = _state.asStateFlow()
     val data: AppData get() = _state.value
 
+    /** Screenshot mode (debug builds only): sample data in memory, nothing saved. */
+    var demo = false
+        private set
+
+    fun loadDemo(d: AppData) { demo = true; _state.value = d }
+
     @Synchronized
     fun init(ctx: Context) {
         if (::file.isInitialized) return
@@ -50,6 +56,7 @@ object Store {
     }
 
     private fun save(d: AppData) {
+        if (demo) return
         val o = JSONObject()
         o.put("trips", JSONArray().also { a -> d.trips.forEach { a.put(it.toJson()) } })
         o.put("settings", d.settings.toJson())

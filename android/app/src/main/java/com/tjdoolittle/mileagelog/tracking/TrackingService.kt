@@ -170,6 +170,9 @@ class TrackingService : Service() {
         private val _accuracy = MutableStateFlow<Double?>(null)
         val accuracy: StateFlow<Double?> = _accuracy
 
+        /** Screenshot mode only: show a strong GPS signal on the sample trip. */
+        fun demoAccuracy(v: Double) { _accuracy.value = v }
+
         /** Start from the app (foreground). */
         fun startManual(ctx: Context) {
             ContextCompat.startForegroundService(ctx, Intent(ctx, TrackingService::class.java).setAction(ACTION_START_MANUAL))

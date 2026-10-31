@@ -77,6 +77,7 @@ fun SettingsScreen(data: AppData, year: Int, resumeTick: Int, onClose: () -> Uni
     val ctx = LocalContext.current
     val s = data.settings
     var tick by remember { mutableStateOf(0) }
+    var disclose by remember { mutableStateOf<(() -> Unit)?>(null) }
     // Re-read permission state whenever we come back from a system screen.
     @Suppress("UNUSED_VARIABLE") val refresh = resumeTick + tick
 
@@ -125,28 +126,34 @@ fun SettingsScreen(data: AppData, year: Int, resumeTick: Int, onClose: () -> Uni
                             style = Type.small, color = p.muted)
                     }
                     Switch(checked = s.autoDetect, onCheckedChange = { on ->
-                        Store.setSettings(Store.data.settings.copy(autoDetect = on))
                         if (on) {
-                            val need = basicsNeeded()
-                            if (need.isNotEmpty()) askBasics.launch(need) else DriveDetector.enable(ctx)
-                        } else DriveDetector.disable(ctx)
+                            // Google Play requires this explanation before asking for location.
+                            disclose = {
+                                Store.setSettings(Store.data.settings.copy(autoDetect = true))
+                                val need = basicsNeeded()
+                                if (need.isNotEmpty()) askBasics.launch(need) else DriveDetector.enable(ctx)
+                            }
+                        } else {
+                            Store.setSettings(Store.data.settings.copy(autoDetect = false))
+                            DriveDetector.disable(ctx)
+                        }
                     })
                 }
                 if (s.autoDetect) {
                     Box(Modifier.fillMaxWidth().height(1.dp).background(p.line))
                     SectionLabel("Setup checklist")
-                    Check("Location", "Allow while using the app", hasLocation(ctx)) { askBasics.launch(basicsNeeded()) }
+                    Check("Location", "Allow while using the app", hasLocation(ctx)) { disclose = { askBasics.launch(basicsNeeded()) } }
                     if (Build.VERSION.SDK_INT >= 29) {
                         Check("Physical activity", "Lets the phone tell when you're in a car", DriveDetector.hasPermission(ctx)) { askBasics.launch(basicsNeeded()) }
                         Check("Location all the time", "Choose \"Allow all the time\" so tracking can start in your pocket", hasBackground(ctx)) {
-                            if (!hasLocation(ctx)) askBasics.launch(basicsNeeded()) else askBackground.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                            disclose = {
+                                if (!hasLocation(ctx)) askBasics.launch(basicsNeeded()) else askBackground.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                            }
                         }
                     }
                     if (Build.VERSION.SDK_INT >= 33) Check("Notifications", "Shows the trip while it's tracking", hasNotifications(ctx)) { askBasics.launch(basicsNeeded()) }
-                    Check("Battery: unrestricted", "Stops Android from blocking GPS when a drive starts", batteryUnrestricted(ctx)) {
-                        runCatching {
-                            ctx.startActivity(Intent(AndroidSettings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:" + ctx.packageName)))
-                        }.onFailure { openAppSettings(ctx) }
+                    Check("Battery: unrestricted", "Opens app info. Tap Battery (or App battery usage), then Unrestricted.", batteryUnrestricted(ctx)) {
+                        openAppSettings(ctx)
                     }
                 }
             }
@@ -214,6 +221,9 @@ fun SettingsScreen(data: AppData, year: Int, resumeTick: Int, onClose: () -> Uni
             Text("Mileage Log for Android · version ${versionName(ctx)}", style = Type.small, color = p.muted, modifier = Modifier.padding(bottom = 16.dp))
         }
     }
+    disclose?.let { action ->
+        LocationDisclosure(onContinue = { disclose = null; action() }, onDismiss = { disclose = null })
+    }
 }
 
 @Composable
@@ -237,6 +247,28 @@ private fun Check(title: String, detail: String, ok: Boolean, onFix: () -> Unit)
         }
         if (!ok) TextButton(onClick = onFix) { Text("ALLOW", style = Type.label, color = p.signText) }
     }
+}
+
+/** Google Play "prominent disclosure": shown in the app before any location permission prompt. */
+@Composable
+fun LocationDisclosure(onContinue: () -> Unit, onDismiss: () -> Unit) {
+    val p = LocalPalette.current
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Location for automatic trips", style = Type.title, color = p.ink) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text("Mileage Log collects location data to detect your drives and measure their miles for your mileage log, even when the app is closed or not in use.",
+                    style = Type.body, color = p.ink)
+                Text("Physical activity data is used only to tell when you're in a car. Your location and trips stay on your phone and aren't shared.",
+                    style = Type.small, color = p.muted)
+                Text("Next, Android asks for location access. To detect drives automatically, choose \"Allow all the time\".",
+                    style = Type.small, color = p.muted)
+            }
+        },
+        confirmButton = { TextButton(onClick = onContinue) { Text("Continue") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Not now") } },
+    )
 }
 
 @Composable
