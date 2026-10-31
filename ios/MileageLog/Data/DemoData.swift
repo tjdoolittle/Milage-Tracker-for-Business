@@ -42,19 +42,23 @@ enum DemoData {
             }
             day = cal.date(byAdding: .day, value: 1, to: day)!
         }
-        // Two detected drives waiting for review.
+        // Two detected drives waiting for review, at believable morning times (screenshots show 9:41).
         let now = Date().timeIntervalSince1970 * 1000
+        func todayAt(_ h: Int, _ m: Int) -> Double {
+            let d = cal.date(bySettingHour: h, minute: m, second: 0, of: Date()) ?? Date()
+            return d.timeIntervalSince1970 * 1000
+        }
         var r1 = Trip(id: "demo-r1", date: Store.today(), miles: 18.4)
         r1.status = TripStatus.review; r1.source = "Auto GPS"; r1.from = "Shop"; r1.to = "1180 Peachtree St NE, Atlanta"
-        r1.startTime = now - 3 * 3_600_000; r1.createdAt = now
+        r1.startTime = todayAt(7, 52); r1.createdAt = now
         var r2 = Trip(id: "demo-r2", date: Store.today(), miles: 3.1)
         r2.status = TripStatus.review; r2.source = "Auto GPS"; r2.from = "1180 Peachtree St NE, Atlanta"; r2.to = "Home"
-        r2.startTime = now - 1 * 3_600_000; r2.createdAt = now + 1
+        r2.startTime = todayAt(8, 31); r2.createdAt = now + 1
         d.trips += [r1, r2]
 
         if ProcessInfo.processInfo.arguments.contains("-active") {
             var a = ActiveTrip(auto: true)
-            a.startedAt = now - 26 * 60_000
+            a.startedAt = todayAt(9, 15)
             a.meters = 12.3 * 1609.344
             a.fixes = 540
             a.startLat = 33.79; a.startLng = -84.388
