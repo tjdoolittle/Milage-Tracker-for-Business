@@ -2,6 +2,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 import UserNotifications
 import CoreMotion
+import CoreLocation
 
 struct SettingsView: View {
     @EnvironmentObject private var store: Store
@@ -24,6 +25,7 @@ struct SettingsView: View {
         NavigationStack {
             List {
                 autoDetectSection
+                HomeWorkSection()
                 ratesSection
                 exportSection
                 if !store.data.settings.places.isEmpty { placesSection }
@@ -177,6 +179,75 @@ struct SettingsView: View {
         let v = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
         let b = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
         return "\(v) (\(b))"
+    }
+}
+
+struct HomeWorkSection: View {
+    @EnvironmentObject private var store: Store
+    @State private var home = ""
+    @State private var work = ""
+    @State private var loaded = false
+    @State private var note: String?
+
+    var body: some View {
+        Section {
+            AddressRow(label: "Home address", text: $home, saved: store.data.settings.homeAddress) { save(home: true, $0) }
+            AddressRow(label: "Work address", text: $work, saved: store.data.settings.workAddress) { save(home: false, $0) }
+            if let note { Text(note).font(Fonts.body(13)).foregroundStyle(Palette.muted) }
+            VStack(alignment: .leading, spacing: 4) {
+                Label(Store.commuteNote, systemImage: "exclamationmark.triangle.fill")
+                    .font(Fonts.bodyBold(15)).foregroundStyle(Palette.amber)
+                Text("Driving between your home and your regular place of work is commuting, which the IRS doesn't allow as a deduction. Trips from work to clients, job sites, or another office usually count.")
+                    .font(Fonts.body(14)).foregroundStyle(Palette.muted)
+            }
+        } header: {
+            Text("Home and work")
+        } footer: {
+            Text("Saved addresses fill in From and To with one tap. GPS trips that start or end within about 200 m of them get the address too.")
+        }
+        .onAppear {
+            guard !loaded else { return }
+            loaded = true
+            home = store.data.settings.homeAddress
+            work = store.data.settings.workAddress
+        }
+    }
+
+    private func save(home isHome: Bool, _ value: String) {
+        let address = value.trimmingCharacters(in: .whitespaces)
+        if address.isEmpty {
+            store.setHomeWork(home: isHome, address: "", lat: nil, lng: nil)
+            note = "\(isHome ? "Home" : "Work") address removed."
+            return
+        }
+        note = "Finding it on the map…"
+        CLGeocoder().geocodeAddressString(address) { marks, _ in
+            DispatchQueue.main.async {
+                let loc = marks?.first?.location?.coordinate
+                store.setHomeWork(home: isHome, address: address, lat: loc?.latitude, lng: loc?.longitude)
+                note = loc != nil ? "Saved. Trips that start or end here get this address."
+                                  : "Saved. Couldn't find it on the map, so only the one-tap fill will use it."
+            }
+        }
+    }
+}
+
+struct AddressRow: View {
+    var label: String
+    @Binding var text: String
+    var saved: String
+    var onSave: (String) -> Void
+
+    var body: some View {
+        HStack {
+            TextField(label, text: $text)
+                .textContentType(.fullStreetAddress)
+                .submitLabel(.done)
+                .onSubmit { if text.trimmingCharacters(in: .whitespaces) != saved { onSave(text) } }
+            if text.trimmingCharacters(in: .whitespaces) != saved {
+                Button("Save") { onSave(text) }.font(Fonts.sign(14)).buttonStyle(.borderless)
+            }
+        }
     }
 }
 

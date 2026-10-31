@@ -70,6 +70,39 @@ final class Store: ObservableObject {
         setSettings(s)
     }
 
+    // MARK: Purposes and home/work
+
+    /// Common business purposes offered in the trip editor. "Other" lets the driver type their own.
+    static let purposes = [
+        "Travel between offices", "Client Visits", "Business Meeting", "Sales Calls",
+        "Deliveries", "Banking", "Admin Errands", "Job Site Visits",
+    ]
+    static let otherPurpose = "Other"
+    static let commuteNote = "Regular Everyday Commute is Not Deductible"
+
+    /// Save the home or work address. When it was found on the map it also becomes a saved
+    /// place, so GPS trips that start or end there get the address filled in.
+    func setHomeWork(home: Bool, address: String, lat: Double?, lng: Double?) {
+        update { d in
+            let old = home ? d.settings.homeAddress : d.settings.workAddress
+            if !old.isEmpty { d.settings.places.removeAll { $0.name == old } }
+            if let lat, let lng, !address.isEmpty {
+                d.settings.places.removeAll { Geo.meters(lat, lng, $0.lat, $0.lng) < 200 }
+                d.settings.places.append(Place(name: address, lat: lat, lng: lng))
+            }
+            if home { d.settings.homeAddress = address } else { d.settings.workAddress = address }
+        }
+    }
+
+    /// True when a trip goes between the saved home and work addresses, in either direction.
+    func isCommute(from: String, to: String) -> Bool {
+        let norm = { (s: String) in s.trimmingCharacters(in: .whitespaces).lowercased() }
+        let h = norm(data.settings.homeAddress), w = norm(data.settings.workAddress)
+        guard !h.isEmpty, !w.isEmpty else { return false }
+        let f = norm(from), t = norm(to)
+        return (f == h && t == w) || (f == w && t == h)
+    }
+
     // MARK: Rates
 
     /// The rate schedule in effect, oldest first.

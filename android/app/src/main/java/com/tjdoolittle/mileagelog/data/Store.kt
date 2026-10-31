@@ -102,6 +102,37 @@ object Store {
         setSettings(s.copy(places = (s.places + Place(name.trim(), lat, lng)).takeLast(300)))
     }
 
+    /** Common business purposes offered in the trip editor. "Other" lets the driver type their own. */
+    val PURPOSES = listOf(
+        "Travel between offices", "Client Visits", "Business Meeting", "Sales Calls",
+        "Deliveries", "Banking", "Admin Errands", "Job Site Visits",
+    )
+    const val OTHER_PURPOSE = "Other"
+    const val COMMUTE_NOTE = "Regular Everyday Commute is Not Deductible"
+
+    /**
+     * Save the home or work address. When it was found on the map, it also becomes a saved
+     * place, so GPS trips that start or end there get the address filled in.
+     */
+    fun setHomeWork(home: Boolean, address: String, lat: Double?, lng: Double?) = update { d ->
+        val s = d.settings
+        val old = if (home) s.homeAddress else s.workAddress
+        var places = s.places.filterNot { old.isNotBlank() && it.name == old }
+        if (lat != null && lng != null && address.isNotBlank()) {
+            places = places.filterNot { Geo.meters(lat, lng, it.lat, it.lng) < 200 } + Place(address, lat, lng)
+        }
+        val next = if (home) s.copy(homeAddress = address) else s.copy(workAddress = address)
+        d.copy(settings = next.copy(places = places))
+    }
+
+    /** True when a trip goes between the saved home and work addresses, in either direction. */
+    fun isCommute(from: String, to: String, s: Settings = data.settings): Boolean {
+        val h = s.homeAddress.trim().lowercase(); val w = s.workAddress.trim().lowercase()
+        if (h.isEmpty() || w.isEmpty()) return false
+        val f = from.trim().lowercase(); val t = to.trim().lowercase()
+        return (f == h && t == w) || (f == w && t == h)
+    }
+
     fun today(): String = isoDate(System.currentTimeMillis())
 
     fun isoDate(ms: Long): String {

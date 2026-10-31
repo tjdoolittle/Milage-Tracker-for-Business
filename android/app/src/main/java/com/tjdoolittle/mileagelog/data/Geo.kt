@@ -39,6 +39,27 @@ object Geo {
         return addr ?: coordLabel(lat, lng)
     }
 
+    /** Find an address on the map. Returns (lat, lng), or null if it can't be found. */
+    suspend fun locate(ctx: Context, address: String): Pair<Double, Double>? {
+        if (address.isBlank() || !Geocoder.isPresent()) return null
+        val g = Geocoder(ctx, Locale.getDefault())
+        val list: List<Address>? = withTimeoutOrNull(8000) {
+            if (Build.VERSION.SDK_INT >= 33) {
+                suspendCancellableCoroutine { cont ->
+                    g.getFromLocationName(address, 1, object : Geocoder.GeocodeListener {
+                        override fun onGeocode(addresses: MutableList<Address>) { if (cont.isActive) cont.resume(addresses) }
+                        override fun onError(errorMessage: String?) { if (cont.isActive) cont.resume(null) }
+                    })
+                }
+            } else {
+                @Suppress("DEPRECATION")
+                runCatching { g.getFromLocationName(address, 1) }.getOrNull()
+            }
+        }
+        val a = list?.firstOrNull() ?: return null
+        return a.latitude to a.longitude
+    }
+
     private suspend fun reverseGeocode(ctx: Context, lat: Double, lng: Double): String? {
         if (!Geocoder.isPresent()) return null
         val g = Geocoder(ctx, Locale.getDefault())

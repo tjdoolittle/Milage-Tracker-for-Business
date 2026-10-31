@@ -17,7 +17,8 @@ struct TripEditorView: View {
     @State private var odo2 = ""
     @State private var from = ""
     @State private var to = ""
-    @State private var purpose = ""
+    @State private var purposeChoice = ""
+    @State private var purposeOther = ""
     @State private var client = ""
     @State private var notes = ""
     @State private var error: String?
@@ -66,20 +67,53 @@ struct TripEditorView: View {
                     }
                 }
 
-                Section("Route") {
+                Section {
                     TextField("From", text: $from)
                     TextField("To", text: $to)
+                    if !homeWork.isEmpty {
+                        HStack(spacing: 8) {
+                            ForEach(homeWork.indices, id: \.self) { i in
+                                let item = homeWork[i]
+                                Button(item.0) { if from.isEmpty { from = item.1 } else { to = item.1 } }
+                                    .font(Fonts.bodyBold(14)).foregroundStyle(Palette.signInk)
+                                    .padding(.horizontal, 14).padding(.vertical, 6)
+                                    .background(Capsule().fill(Palette.sign))
+                                    .buttonStyle(.plain)
+                            }
+                        }
+                    }
                     Chips(options: placeNames) { if from.isEmpty { from = $0 } else { to = $0 } }
                     if !from.isEmpty && !to.isEmpty, let url = mapsURL {
                         Link(destination: url) {
                             Label("Check driving distance in Maps", systemImage: "arrow.triangle.turn.up.right.diamond")
                         }
                     }
+                    if isCommute {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Label(Store.commuteNote, systemImage: "exclamationmark.triangle.fill")
+                                .font(Fonts.bodyBold(15)).foregroundStyle(Palette.amber)
+                            Text("This trip is between your home and work addresses. Mark it personal unless it included a business stop.")
+                                .font(Fonts.body(14)).foregroundStyle(Palette.ink)
+                        }
+                        .listRowBackground(Palette.amberBg)
+                    }
+                } header: {
+                    Text("Route")
+                } footer: {
+                    if !isCommute { Text(Store.commuteNote) }
                 }
 
                 Section {
-                    TextField("Business purpose", text: $purpose)
-                    Chips(options: recent(\.purpose)) { purpose = $0 }
+                    Picker("Business purpose", selection: $purposeChoice) {
+                        Text("Choose one").tag("")
+                        ForEach(Store.purposes, id: \.self) { Text($0).tag($0) }
+                        Text("Other (type your own)").tag(Store.otherPurpose)
+                    }
+                    .pickerStyle(.menu)
+                    if purposeChoice == Store.otherPurpose {
+                        TextField("Describe the business purpose", text: $purposeOther)
+                        Chips(options: recentCustomPurposes) { purposeOther = $0 }
+                    }
                     TextField("Client or job (optional)", text: $client)
                     Chips(options: recent(\.client)) { client = $0 }
                     TextField("Notes (optional)", text: $notes, axis: .vertical).lineLimit(2...5)
@@ -132,7 +166,10 @@ struct TripEditorView: View {
         if t.miles > 0 { miles = fmt(t.roundTrip ? t.miles / 2 : t.miles) }
         odo1 = t.odoStart.map(fmt) ?? ""
         odo2 = t.odoEnd.map(fmt) ?? ""
-        from = t.from; to = t.to; purpose = t.purpose; client = t.client; notes = t.notes
+        from = t.from; to = t.to; client = t.client; notes = t.notes
+        if t.purpose.isEmpty { purposeChoice = "" }
+        else if Store.purposes.contains(t.purpose) { purposeChoice = t.purpose }
+        else { purposeChoice = Store.otherPurpose; purposeOther = t.purpose }
     }
 
     private func save(status: String) {
@@ -143,7 +180,7 @@ struct TripEditorView: View {
                 return
             }
             guard !purpose.trimmingCharacters(in: .whitespaces).isEmpty else {
-                error = "Add a business purpose. The IRS requires one for every trip."
+                error = purposeChoice == Store.otherPurpose ? "Type the business purpose." : "Choose a business purpose. The IRS requires one for every trip."
                 return
             }
         }
@@ -167,11 +204,28 @@ struct TripEditorView: View {
         dismiss()
     }
 
+    private var purpose: String { purposeChoice == Store.otherPurpose ? purposeOther : purposeChoice }
+
+    private var isCommute: Bool { store.isCommute(from: from, to: to) }
+
+    private var homeWork: [(String, String)] {
+        var out: [(String, String)] = []
+        if !store.data.settings.homeAddress.isEmpty { out.append(("Home", store.data.settings.homeAddress)) }
+        if !store.data.settings.workAddress.isEmpty { out.append(("Work", store.data.settings.workAddress)) }
+        return out
+    }
+
+    private var recentCustomPurposes: [String] {
+        recent(\.purpose).filter { !Store.purposes.contains($0) }
+    }
+
     private var placeNames: [String] {
         var seen = Set<String>()
         let names = store.data.settings.places.map(\.name) +
             store.data.trips.sorted { $0.createdAt > $1.createdAt }.flatMap { [$0.from, $0.to] }
-        return names.filter { !$0.isEmpty && !Geo.looksLikeCoords($0) && seen.insert($0).inserted }.prefix(8).map { $0 }
+        let s = store.data.settings
+        return names.filter { !$0.isEmpty && !Geo.looksLikeCoords($0) && $0 != s.homeAddress && $0 != s.workAddress && seen.insert($0).inserted }
+            .prefix(8).map { $0 }
     }
 
     private func recent(_ key: KeyPath<Trip, String>) -> [String] {

@@ -91,6 +91,8 @@ data class Settings(
     val places: List<Place> = emptyList(),
     val autoDetect: Boolean = false,
     val minAutoMiles: Double = 0.5,
+    val homeAddress: String = "",
+    val workAddress: String = "",
 ) {
     fun toJson(): JSONObject = JSONObject().apply {
         put("rates", JSONObject().also { r -> rates.forEach { (y, v) -> r.put(y.toString(), v) } })
@@ -98,6 +100,8 @@ data class Settings(
         put("places", JSONArray().also { a -> places.forEach { a.put(it.toJson()) } })
         put("autoDetect", autoDetect)
         put("minAutoMiles", minAutoMiles)
+        put("homeAddress", homeAddress)
+        put("workAddress", workAddress)
     }
     companion object {
         fun fromJson(o: JSONObject?): Settings {
@@ -114,6 +118,7 @@ data class Settings(
             return Settings(
                 rates = rates, ratePeriods = periods, places = places,
                 autoDetect = o.optBoolean("autoDetect", false), minAutoMiles = o.optDouble("minAutoMiles", 0.5),
+                homeAddress = o.optString("homeAddress"), workAddress = o.optString("workAddress"),
             )
         }
     }

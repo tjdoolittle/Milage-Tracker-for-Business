@@ -27,6 +27,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -79,7 +84,15 @@ fun TripEditor(trip: Trip, isNew: Boolean, onClose: () -> Unit) {
     var odo2 by rememberSaveable { mutableStateOf(trip.odoEnd?.let(::fmt) ?: "") }
     var from by rememberSaveable { mutableStateOf(trip.from) }
     var to by rememberSaveable { mutableStateOf(trip.to) }
-    var purpose by rememberSaveable { mutableStateOf(trip.purpose) }
+    var purposeChoice by rememberSaveable {
+        mutableStateOf(when {
+            trip.purpose.isBlank() -> ""
+            trip.purpose in Store.PURPOSES -> trip.purpose
+            else -> Store.OTHER_PURPOSE
+        })
+    }
+    var purposeOther by rememberSaveable { mutableStateOf(if (trip.purpose.isNotBlank() && trip.purpose !in Store.PURPOSES) trip.purpose else "") }
+    val purpose = if (purposeChoice == Store.OTHER_PURPOSE) purposeOther else purposeChoice
     var client by rememberSaveable { mutableStateOf(trip.client) }
     var notes by rememberSaveable { mutableStateOf(trip.notes) }
     var error by rememberSaveable { mutableStateOf<String?>(null) }
@@ -91,16 +104,26 @@ fun TripEditor(trip: Trip, isNew: Boolean, onClose: () -> Unit) {
     } else parseNum(miles)?.takeIf { it > 0 }?.let { if (roundTrip) it * 2 else it }
     val rate = Store.rateOn(date)
 
-    val recentPurposes = data.trips.filter { it.purpose.isNotBlank() }.sortedByDescending { it.createdAt }.map { it.purpose }.distinct().take(8)
+    val recentPurposes = data.trips.filter { it.purpose.isNotBlank() && it.purpose !in Store.PURPOSES }
+        .sortedByDescending { it.createdAt }.map { it.purpose }.distinct().take(8)
+    val s = data.settings
+    val homeWork = listOfNotNull(
+        s.homeAddress.takeIf { it.isNotBlank() }?.let { "Home" to it },
+        s.workAddress.takeIf { it.isNotBlank() }?.let { "Work" to it },
+    )
     val recentClients = data.trips.filter { it.client.isNotBlank() }.sortedByDescending { it.createdAt }.map { it.client }.distinct().take(8)
     val placeNames = (data.settings.places.map { it.name } + data.trips.sortedByDescending { it.createdAt }.flatMap { listOf(it.from, it.to) })
-        .filter { it.isNotBlank() && !com.tjdoolittle.mileagelog.data.Geo.looksLikeCoords(it) }.distinct().take(8)
+        .filter { it.isNotBlank() && !com.tjdoolittle.mileagelog.data.Geo.looksLikeCoords(it) && it != s.homeAddress && it != s.workAddress }
+        .distinct().take(8)
 
     fun save(status: String) {
         val m = computed
         if (status == Status.LOGGED) {
             if (m == null) { error = if (odoMode) "Enter both odometer readings, with the end reading higher." else "Enter how many miles you drove."; return }
-            if (purpose.isBlank()) { error = "Add a business purpose. The IRS requires one for every trip."; return }
+            if (purpose.isBlank()) {
+                error = if (purposeChoice == Store.OTHER_PURPOSE) "Type the business purpose." else "Choose a business purpose. The IRS requires one for every trip."
+                return
+            }
         }
         val t = trip.copy(
             date = date, miles = m ?: trip.miles, purpose = purpose.trim(), client = client.trim(),
@@ -172,7 +195,22 @@ fun TripEditor(trip: Trip, isNew: Boolean, onClose: () -> Unit) {
                 Field("From", from, { from = it }, Modifier.weight(1f))
                 Field("To", to, { to = it }, Modifier.weight(1f))
             }
+            if (homeWork.isNotEmpty()) {
+                LabeledChips(homeWork) { if (from.isBlank()) from = it else to = it }
+            }
             Chips(placeNames) { if (from.isBlank()) from = it else to = it }
+            val commute = Store.isCommute(from, to)
+            Column(
+                Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp))
+                    .background(if (commute) p.amberBg else p.bg)
+                    .border(if (commute) 1.5.dp else 0.dp, if (commute) p.amber else p.bg, RoundedCornerShape(10.dp))
+                    .padding(horizontal = if (commute) 12.dp else 0.dp, vertical = if (commute) 10.dp else 0.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Text(Store.COMMUTE_NOTE, style = if (commute) Type.bodyBold else Type.small, color = if (commute) p.amber else p.muted)
+                if (commute) Text("This trip is between your home and work addresses. Mark it Personal unless it included a business stop.",
+                    style = Type.small, color = p.ink)
+            }
             if (from.isNotBlank() && to.isNotBlank()) {
                 Text("Check driving distance in Google Maps ↗", style = Type.bodyBold, color = p.signText,
                     modifier = Modifier.clickable {
@@ -180,8 +218,11 @@ fun TripEditor(trip: Trip, isNew: Boolean, onClose: () -> Unit) {
                         runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
                     })
             }
-            Field("Business purpose", purpose, { purpose = it })
-            Chips(recentPurposes) { purpose = it }
+            PurposeDropdown(purposeChoice) { purposeChoice = it; error = null }
+            if (purposeChoice == Store.OTHER_PURPOSE) {
+                Field("Describe the business purpose", purposeOther, { purposeOther = it })
+                Chips(recentPurposes) { purposeOther = it }
+            }
             Field("Client or job (optional)", client, { client = it })
             Chips(recentClients) { client = it }
             Field("Notes (optional)", notes, { notes = it }, singleLine = false)
@@ -221,6 +262,44 @@ private fun Field(label: String, value: String, onChange: (String) -> Unit, modi
         else KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
         shape = RoundedCornerShape(10.dp),
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PurposeDropdown(choice: String, onChoice: (String) -> Unit) {
+    var open by remember { mutableStateOf(false) }
+    ExposedDropdownMenuBox(expanded = open, onExpandedChange = { open = it }) {
+        OutlinedTextField(
+            value = choice, onValueChange = {}, readOnly = true,
+            label = { Text("Business purpose") },
+            placeholder = { Text("Choose one") },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = open) },
+            shape = RoundedCornerShape(10.dp),
+            modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable),
+        )
+        ExposedDropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            (Store.PURPOSES + Store.OTHER_PURPOSE).forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(if (option == Store.OTHER_PURPOSE) "Other (type your own)" else option) },
+                    onClick = { onChoice(option); open = false },
+                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                )
+            }
+        }
+    }
+}
+
+/** Chips that show a short label and fill in a longer value (Home / Work addresses). */
+@Composable
+private fun LabeledChips(options: List<Pair<String, String>>, onPick: (String) -> Unit) {
+    val p = LocalPalette.current
+    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        options.forEach { (label, value) ->
+            Text(label, style = Type.bodyBold.copy(fontSize = 14.sp), color = p.signInk, maxLines = 1,
+                modifier = Modifier.clip(CircleShape).background(p.sign)
+                    .clickable { onPick(value) }.padding(horizontal = 14.dp, vertical = 6.dp))
+        }
+    }
 }
 
 @Composable

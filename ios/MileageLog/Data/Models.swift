@@ -87,10 +87,12 @@ struct AppSettings: Codable, Equatable {
     var places: [Place] = []
     var autoDetect: Bool = false
     var minAutoMiles: Double = 0.5
+    var homeAddress: String = ""
+    var workAddress: String = ""
 
     init() {}
 
-    enum CodingKeys: String, CodingKey { case rates, ratePeriods, places, autoDetect, minAutoMiles }
+    enum CodingKeys: String, CodingKey { case rates, ratePeriods, places, autoDetect, minAutoMiles, homeAddress, workAddress }
 
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -100,6 +102,8 @@ struct AppSettings: Codable, Equatable {
         places = (try? c.decodeIfPresent([Place].self, forKey: .places)) ?? []
         autoDetect = c.bool(.autoDetect) ?? false
         minAutoMiles = c.num(.minAutoMiles) ?? 0.5
+        homeAddress = c.str(.homeAddress) ?? ""
+        workAddress = c.str(.workAddress) ?? ""
     }
 }
 

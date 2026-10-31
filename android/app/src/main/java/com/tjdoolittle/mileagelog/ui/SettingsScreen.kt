@@ -42,22 +42,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.tjdoolittle.mileagelog.data.AppData
 import com.tjdoolittle.mileagelog.data.Exports
+import com.tjdoolittle.mileagelog.data.Geo
 import com.tjdoolittle.mileagelog.data.RatePeriod
 import com.tjdoolittle.mileagelog.data.Status
 import com.tjdoolittle.mileagelog.data.Store
 import com.tjdoolittle.mileagelog.tracking.DriveDetector
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 fun granted(ctx: Context, perm: String) = ContextCompat.checkSelfPermission(ctx, perm) == PackageManager.PERMISSION_GRANTED
@@ -147,6 +151,18 @@ fun SettingsScreen(data: AppData, year: Int, resumeTick: Int, onClose: () -> Uni
                 }
             }
 
+            // ---- Home and work ----
+            Card {
+                Text("Home and work", style = Type.bodyBold, color = p.ink)
+                Text("Saved addresses fill in From and To with one tap. GPS trips that start or end within about 200 m of them get the address too.",
+                    style = Type.small, color = p.muted)
+                AddressField("Home address", s.homeAddress, home = true)
+                AddressField("Work address", s.workAddress, home = false)
+                Text(Store.COMMUTE_NOTE, style = Type.bodyBold, color = p.amber)
+                Text("Driving between your home and your regular place of work is commuting, which the IRS doesn't allow as a deduction. Trips from work to clients, job sites, or another office usually count.",
+                    style = Type.small, color = p.muted)
+            }
+
             // ---- Rates ----
             RatesCard(s)
 
@@ -211,6 +227,33 @@ private fun Check(title: String, detail: String, ok: Boolean, onFix: () -> Unit)
             Text(detail, style = Type.small, color = p.muted)
         }
         if (!ok) TextButton(onClick = onFix) { Text("ALLOW", style = Type.label, color = p.signText) }
+    }
+}
+
+@Composable
+private fun AddressField(label: String, saved: String, home: Boolean) {
+    val p = LocalPalette.current
+    val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var text by rememberSaveable(saved) { mutableStateOf(saved) }
+    var busy by remember { mutableStateOf(false) }
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        OutlinedTextField(text, { text = it }, Modifier.weight(1f), label = { Text(label) }, singleLine = true,
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words))
+        TextButton(enabled = !busy && text.trim() != saved, onClick = {
+            val value = text.trim()
+            busy = true
+            scope.launch {
+                val spot = if (value.isBlank()) null else Geo.locate(ctx, value)
+                Store.setHomeWork(home, value, spot?.first, spot?.second)
+                busy = false
+                toast(ctx, when {
+                    value.isBlank() -> "${if (home) "Home" else "Work"} address removed"
+                    spot != null -> "Saved. Trips that start or end here get this address."
+                    else -> "Saved. Couldn't find it on the map, so only the one-tap fill will use it."
+                })
+            }
+        }) { Text(if (busy) "…" else "SAVE", style = Type.label, color = p.signText) }
     }
 }
 
