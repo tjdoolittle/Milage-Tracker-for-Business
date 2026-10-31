@@ -142,17 +142,17 @@ fun SettingsScreen(data: AppData, year: Int, resumeTick: Int, onClose: () -> Uni
                 if (s.autoDetect) {
                     Box(Modifier.fillMaxWidth().height(1.dp).background(p.line))
                     SectionLabel("Setup checklist")
-                    Check("Location", "Allow while using the app", hasLocation(ctx)) { disclose = { askBasics.launch(basicsNeeded()) } }
+                    Check("Location", "Allow while using the app", Store.demo || hasLocation(ctx)) { disclose = { askBasics.launch(basicsNeeded()) } }
                     if (Build.VERSION.SDK_INT >= 29) {
-                        Check("Physical activity", "Lets the phone tell when you're in a car", DriveDetector.hasPermission(ctx)) { askBasics.launch(basicsNeeded()) }
-                        Check("Location all the time", "Choose \"Allow all the time\" so tracking can start in your pocket", hasBackground(ctx)) {
+                        Check("Physical activity", "Lets the phone tell when you're in a car", Store.demo || DriveDetector.hasPermission(ctx)) { askBasics.launch(basicsNeeded()) }
+                        Check("Location all the time", "Choose \"Allow all the time\" so tracking can start in your pocket", Store.demo || hasBackground(ctx)) {
                             disclose = {
                                 if (!hasLocation(ctx)) askBasics.launch(basicsNeeded()) else askBackground.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
                             }
                         }
                     }
-                    if (Build.VERSION.SDK_INT >= 33) Check("Notifications", "Shows the trip while it's tracking", hasNotifications(ctx)) { askBasics.launch(basicsNeeded()) }
-                    Check("Battery: unrestricted", "Opens app info. Tap Battery (or App battery usage), then Unrestricted.", batteryUnrestricted(ctx)) {
+                    if (Build.VERSION.SDK_INT >= 33) Check("Notifications", "Shows the trip while it's tracking", Store.demo || hasNotifications(ctx)) { askBasics.launch(basicsNeeded()) }
+                    Check("Battery: unrestricted", "Opens app info. Tap Battery (or App battery usage), then Unrestricted.", Store.demo || batteryUnrestricted(ctx)) {
                         openAppSettings(ctx)
                     }
                 }

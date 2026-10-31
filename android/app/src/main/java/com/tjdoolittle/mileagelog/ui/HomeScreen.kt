@@ -251,9 +251,13 @@ private fun ReviewCard(t: Trip, deduction: Double, onBusiness: () -> Unit, onPer
         }
         Text(listOf(t.from.ifBlank { "Start" }, t.to.ifBlank { "End" }).joinToString(" → "), style = Type.small, color = p.muted)
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            OutlinedButton(onClick = onPersonal, modifier = Modifier.weight(1f)) { Text("Personal", style = Type.bodyBold, color = p.ink) }
-            androidx.compose.material3.Button(onClick = onBusiness, modifier = Modifier.weight(1f)) {
-                Text("Business · ${fmtUsd(deduction)}", style = Type.bodyBold, maxLines = 1)
+            // Tighter padding and 15sp so "Business · $13.98" fits on narrow phones.
+            val pad = PaddingValues(horizontal = 6.dp, vertical = 8.dp)
+            OutlinedButton(onClick = onPersonal, modifier = Modifier.weight(1f), contentPadding = pad) {
+                Text("Personal", style = Type.bodyBold.copy(fontSize = 15.sp), color = p.ink, maxLines = 1)
+            }
+            androidx.compose.material3.Button(onClick = onBusiness, modifier = Modifier.weight(1f), contentPadding = pad) {
+                Text("Business · ${fmtUsd(deduction)}", style = Type.bodyBold.copy(fontSize = 15.sp), maxLines = 1, softWrap = false)
             }
         }
     }
