@@ -122,6 +122,9 @@ fun HomeScreen(
                     if (isCur) now.get(Calendar.MONTH) else null, onYearClick = { pickYear = true }, onRateClick = onSettings)
             }
             if (active != null) item { ActiveBanner(active, gpsAccuracy, onDiscard) }
+            if (!data.settings.introDismissed) item {
+                IntroCard { Store.setSettings(Store.data.settings.copy(introDismissed = true)) }
+            }
             if (review.isNotEmpty()) {
                 item {
                     Row(Modifier.fillMaxWidth().padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -188,6 +191,25 @@ private fun YearDialog(years: List<Int>, selected: Int, onPick: (Int) -> Unit, o
         },
         confirmButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
     )
+}
+
+/** First-run directions. Stays until dismissed; Settings can bring it back. */
+@Composable
+private fun IntroCard(onDismiss: () -> Unit) {
+    val p = LocalPalette.current
+    Column(
+        Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(p.surface)
+            .border(1.5.dp, p.sign, RoundedCornerShape(12.dp)).padding(14.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text("HOW MILEAGE LOG WORKS", style = Type.label, color = p.signText)
+        Text(Store.RESPONSIBILITY, style = Type.body, color = p.ink)
+        Text("• Drives it detects show up under To Review. Tap Business or Personal.", style = Type.body, color = p.ink)
+        Text("• To add a trip yourself, tap + Log trip.", style = Type.body, color = p.ink)
+        TextButton(onClick = onDismiss, modifier = Modifier.align(Alignment.End)) {
+            Text("GOT IT", style = Type.label, color = p.signText)
+        }
+    }
 }
 
 @Composable

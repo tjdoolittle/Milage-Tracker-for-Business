@@ -109,6 +109,7 @@ object Store {
     )
     const val OTHER_PURPOSE = "Other"
     const val COMMUTE_NOTE = "Regular Everyday Commute is Not Deductible"
+    const val RESPONSIBILITY = "Mileage Log tracks all your trips, but you're responsible for the data you log. Check each trip before you count it."
 
     /**
      * Save the home or work address. When it was found on the map, it also becomes a saved

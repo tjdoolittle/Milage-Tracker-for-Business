@@ -30,6 +30,18 @@ struct SettingsView: View {
                 exportSection
                 if !store.data.settings.places.isEmpty { placesSection }
                 Section {
+                    Text(Store.responsibility + " Mileage Log isn't tax advice.").font(Fonts.body(14)).foregroundStyle(Palette.muted)
+                    if store.data.settings.introDismissed {
+                        Button("Show the how-it-works tips again") {
+                            var s = store.data.settings
+                            s.introDismissed = false
+                            store.setSettings(s)
+                        }
+                    }
+                } header: {
+                    Text("Your log")
+                }
+                Section {
                     Link(destination: URL(string: "https://tjdoolittle.github.io/mileage-log/support.html")!) {
                         Label("Support", systemImage: "questionmark.circle")
                     }

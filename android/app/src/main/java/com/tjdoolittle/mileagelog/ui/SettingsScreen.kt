@@ -202,6 +202,15 @@ fun SettingsScreen(data: AppData, year: Int, resumeTick: Int, onClose: () -> Uni
                         }.padding(vertical = 6.dp))
                 }
             }
+            Card {
+                Text("Your log", style = Type.bodyBold, color = p.ink)
+                Text(Store.RESPONSIBILITY + " Mileage Log isn't tax advice.", style = Type.small, color = p.muted)
+                if (s.introDismissed) {
+                    Text("Show the how-it-works tips again", style = Type.bodyBold, color = p.signText,
+                        modifier = Modifier.clickable { Store.setSettings(Store.data.settings.copy(introDismissed = false)); toast(ctx, "Tips are back on the home screen") }
+                            .padding(vertical = 4.dp))
+                }
+            }
             Text("Mileage Log for Android · version ${versionName(ctx)}", style = Type.small, color = p.muted, modifier = Modifier.padding(bottom = 16.dp))
         }
     }

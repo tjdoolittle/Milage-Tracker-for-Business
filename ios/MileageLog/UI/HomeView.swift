@@ -36,6 +36,13 @@ struct HomeView: View {
                 if let a = tracker.live ?? store.data.active {
                     ActiveBanner(trip: a, accuracy: tracker.accuracy) { tracker.discard() }
                 }
+                if !store.data.settings.introDismissed {
+                    IntroCard {
+                        var s = store.data.settings
+                        s.introDismissed = true
+                        store.setSettings(s)
+                    }
+                }
                 if !review.isEmpty {
                     HStack {
                         SignLabel(text: "To review", color: Palette.amber)
@@ -219,6 +226,27 @@ struct Odometer: View {
 }
 
 // MARK: - Rows
+
+/// First-run directions. Stays until dismissed; Settings can bring it back.
+struct IntroCard: View {
+    var onDismiss: () -> Void
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            SignLabel(text: "How Mileage Log works", color: Palette.signText)
+            Text(Store.responsibility).font(Fonts.body()).foregroundStyle(Palette.ink)
+            Text("• Drives it detects show up under To Review. Tap Business or Personal.").font(Fonts.body()).foregroundStyle(Palette.ink)
+            Text("• To add a trip yourself, tap + Log trip.").font(Fonts.body()).foregroundStyle(Palette.ink)
+            HStack {
+                Spacer()
+                Button("Got it", action: onDismiss).font(Fonts.sign(14)).tint(Palette.signText)
+            }
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.sign, lineWidth: 1.5))
+    }
+}
 
 struct ActiveBanner: View {
     var trip: ActiveTrip

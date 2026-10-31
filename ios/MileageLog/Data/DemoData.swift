@@ -14,6 +14,7 @@ enum DemoData {
         ]
         d.settings.places = places
         d.settings.autoDetect = true
+        d.settings.introDismissed = true   // keep store screenshots on the main content
         let jobs: [(String, String, Int, Double)] = [
             ("Theater install", "Hartwell residence", 1, 12.6),
             ("Control4 programming", "Peachtree Dental", 2, 4.8),
