@@ -1,6 +1,8 @@
 """Compose captioned App Store screenshots (1320 x 2868) from raw simulator captures.
 
 Usage:  python3 ios/store-listing/compose_store.py <raw-dir> ios/store-listing/screenshots
+Writes screenshots/6.3-inch (1206 x 2622, the slot App Store Connect requires) and
+screenshots/6.9-inch (1320 x 2868, optional).
 The raw captures come from the `store/` folder on the ci-ios branch (made by the
 "iOS build and screenshots" workflow on the 6.9-inch simulator). Needs Pillow.
 Edit SLIDES below to change the captions.
@@ -78,5 +80,10 @@ for order, (name, head, sub, bg) in enumerate(SLIDES, start=1):
     img.paste(shadow, ((W - p.width) // 2 - 80 + 10, top - 80 + 28), shadow)
     img.paste(p, ((W - p.width) // 2, top), p)
     label = name.split("-", 1)[1]
-    img.save(os.path.join(OUT, f"{order}-mileage-log-{label}.png"), optimize=True)
-    print("wrote", name, img.size)
+    # 6.9-inch (optional slot) at full size, and 6.3-inch (the required slot) at 1206 x 2622.
+    # The two sizes have the same shape, so the 6.3-inch image is a straight downscale.
+    os.makedirs(os.path.join(OUT, "6.9-inch"), exist_ok=True)
+    os.makedirs(os.path.join(OUT, "6.3-inch"), exist_ok=True)
+    img.save(os.path.join(OUT, "6.9-inch", f"{order}-mileage-log-{label}.png"), optimize=True)
+    img.resize((1206, 2622), Image.LANCZOS).save(os.path.join(OUT, "6.3-inch", f"{order}-mileage-log-{label}.png"), optimize=True)
+    print("wrote", name)

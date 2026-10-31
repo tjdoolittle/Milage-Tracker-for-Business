@@ -3,11 +3,23 @@
 Everything App Store Connect asks for, ready to paste. Character limits are
 Apple's; every field here fits.
 
-Screenshots are in [`screenshots/`](screenshots/) (6.9-inch iPhone, 1320 x 2868):
-drive detected, review, home, rates, dark mode (numbered 1 to 5). Upload them in that order under
-**iPhone 6.9" Display**. To change the captions, edit `compose_store.py` and rerun it. Apple scales them down for
-smaller iPhones, so no other sizes are needed. The app is iPhone-only, so no
-iPad screenshots either.
+Screenshots are in [`screenshots/`](screenshots/), numbered in upload order
+(drive detected, review, home, rates, dark mode):
+
+| App Store Connect slot | Folder | Size | Needed? |
+| --- | --- | --- | --- |
+| **iPhone 6.3" Display** | `screenshots/6.3-inch/` | 1206 x 2622 | **Required** |
+| iPhone 6.9" Display | `screenshots/6.9-inch/` | 1320 x 2868 | Optional |
+
+The app is iPhone-only, so no iPad screenshots. "File dimensions are invalid" means
+an image went into the wrong slot: each slot only takes its own sizes.
+
+**Creative assets** (optional landscape header art for the product page and
+search results): [`creative-assets/`](creative-assets/), at 5244 x 2950 and
+3840 x 1646. These are separate from screenshots.
+
+To change captions, edit `compose_store.py` (screenshots) or `compose_header.py`
+(header art) and rerun them on the raw captures from the `ci-ios` branch.
 
 ---
 
