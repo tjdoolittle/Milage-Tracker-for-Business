@@ -43,6 +43,7 @@ final class Tracker: NSObject, ObservableObject, CLLocationManagerDelegate {
         manager.pausesLocationUpdatesAutomatically = false
         auth = manager.authorizationStatus
         live = store.data.active
+        if store.demo && live != nil { accuracy = 5 }
     }
 
     var current: ActiveTrip? { live ?? store.data.active }

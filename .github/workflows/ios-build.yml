@@ -95,6 +95,41 @@ jobs:
           shot 05-dark -active
           ls -la shots
 
+      # App Store screenshots: Apple asks for the 6.9-inch iPhone size (1320 x 2868).
+      - name: Capture App Store screenshots (6.9-inch)
+        run: |
+          set -euo pipefail
+          udid=$(xcrun simctl list devices available -j | python3 -c '
+          import json, sys
+          devs = [d for rt, ds in json.load(sys.stdin)["devices"].items() if "iOS" in rt for d in ds]
+          pick = [d for d in devs if d["name"].startswith("iPhone") and d["name"].endswith("Pro Max")]
+          print(pick[-1]["udid"] if pick else "")')
+          if [ -z "$udid" ]; then echo "::warning::No Pro Max simulator on this runner"; exit 0; fi
+          xcrun simctl list devices | grep "$udid"
+          xcrun simctl boot "$udid" || true
+          xcrun simctl bootstatus "$udid" -b
+          xcrun simctl status_bar "$udid" override --time 9:41 --batteryState charged --batteryLevel 100 --cellularBars 4 --wifiBars 3 --operatorName "" || true
+          xcrun simctl install "$udid" build/Build/Products/Debug-iphonesimulator/MileageLog.app
+          mkdir -p shots/store
+          shot() {
+            name="$1"; shift
+            xcrun simctl terminate "$udid" com.tjdoolittle.mileagelog 2>/dev/null || true
+            xcrun simctl launch "$udid" com.tjdoolittle.mileagelog -demo "$@"
+            sleep 8
+            xcrun simctl io "$udid" screenshot "shots/store/$name.png"
+          }
+          xcrun simctl ui "$udid" appearance light
+          shot 1-home
+          shot 2-drive-detected -active
+          shot 3-review -screen editor
+          shot 4-settings -screen settings
+          xcrun simctl ui "$udid" appearance dark
+          shot 5-dark -active
+          python3 -c "
+          import struct,glob
+          for f in sorted(glob.glob('shots/store/*.png')):
+              w,h=struct.unpack('>II',open(f,'rb').read()[16:24]); print(f,w,'x',h)"
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -113,13 +148,14 @@ jobs:
           cp ios/build.log /tmp/out/ 2>/dev/null || echo "no build log" > /tmp/out/build.log
           grep -nE "error:" -A3 /tmp/out/build.log > /tmp/out/errors.txt || true
           cp ios/shots/*.png /tmp/out/ 2>/dev/null || true
+          mkdir -p /tmp/out/store && cp ios/shots/store/*.png /tmp/out/store/ 2>/dev/null || true
           echo "run ${{ github.run_number }} sha ${{ github.sha }} status ${{ job.status }}" > /tmp/out/RUN
           git config user.name "ci"
           git config user.email "ci@users.noreply.github.com"
           git checkout --orphan ci-ios-tmp
           git rm -rfq .
           git clean -fdxq
-          cp /tmp/out/* .
+          cp -r /tmp/out/* .
           git add -A
           git commit -qm "iOS build results for run ${{ github.run_number }}"
           git push -fq origin HEAD:ci-ios

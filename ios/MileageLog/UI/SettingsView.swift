@@ -84,10 +84,10 @@ struct SettingsView: View {
             }
             if store.data.settings.autoDetect {
                 CheckRow(title: "Location: Always", detail: "Lets tracking start with the phone in your pocket. Choose \"Change to Always Allow\" when asked.",
-                         ok: tracker.hasAlways) { tracker.requestAlways() }
+                         ok: store.demo || tracker.hasAlways) { tracker.requestAlways() }
                 CheckRow(title: "Motion & Fitness", detail: "Lets the phone tell when you're in a car.",
-                         ok: tracker.motionAuth == .authorized) { tracker.requestMotion() }
-                CheckRow(title: "Notifications", detail: "Tells you when a drive is ready to review.", ok: notificationsOn) {
+                         ok: store.demo || tracker.motionAuth == .authorized) { tracker.requestMotion() }
+                CheckRow(title: "Notifications", detail: "Tells you when a drive is ready to review.", ok: store.demo || notificationsOn) {
                     UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { granted, _ in
                         DispatchQueue.main.async {
                             notificationsOn = granted

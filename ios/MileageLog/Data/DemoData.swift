@@ -13,6 +13,7 @@ enum DemoData {
             Place(name: "AV supply house", lat: 33.7550, lng: -84.4200),
         ]
         d.settings.places = places
+        d.settings.autoDetect = true
         let jobs: [(String, String, Int, Double)] = [
             ("Theater install", "Hartwell residence", 1, 12.6),
             ("Control4 programming", "Peachtree Dental", 2, 4.8),
