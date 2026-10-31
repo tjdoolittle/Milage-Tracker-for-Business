@@ -28,6 +28,13 @@ struct SettingsView: View {
                 exportSection
                 if !store.data.settings.places.isEmpty { placesSection }
                 Section {
+                    Link(destination: URL(string: "https://tjdoolittle.github.io/mileage-log/support.html")!) {
+                        Label("Support", systemImage: "questionmark.circle")
+                    }
+                    Link(destination: URL(string: "https://tjdoolittle.github.io/mileage-log/privacy.html")!) {
+                        Label("Privacy policy", systemImage: "hand.raised")
+                    }
+                } footer: {
                     Text("Mileage Log for iPhone · version \(appVersion)").font(Fonts.body(13)).foregroundStyle(Palette.muted)
                 }
             }

@@ -177,6 +177,15 @@ fun SettingsScreen(data: AppData, year: Int, resumeTick: Int, onClose: () -> Uni
                     }
                 }
             }
+            Card {
+                listOf("Support" to "https://tjdoolittle.github.io/mileage-log/support.html",
+                       "Privacy policy" to "https://tjdoolittle.github.io/mileage-log/privacy.html").forEach { (label, url) ->
+                    Text(label, style = Type.bodyBold, color = p.signText,
+                        modifier = Modifier.fillMaxWidth().clickable {
+                            runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
+                        }.padding(vertical = 6.dp))
+                }
+            }
             Text("Mileage Log for Android · version ${versionName(ctx)}", style = Type.small, color = p.muted, modifier = Modifier.padding(bottom = 16.dp))
         }
     }
