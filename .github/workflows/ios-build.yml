@@ -64,6 +64,7 @@ jobs:
           grep -q "BUILD SUCCEEDED" build.log
 
       - name: Capture screenshots
+        timeout-minutes: 12
         run: |
           set -euo pipefail
           udid=$(xcrun simctl list devices available -j | python3 -c '
@@ -94,9 +95,12 @@ jobs:
           xcrun simctl ui "$udid" appearance dark
           shot 05-dark -active
           ls -la shots
+          xcrun simctl shutdown all || true
 
       # App Store screenshots: Apple asks for the 6.9-inch iPhone size (1320 x 2868).
       - name: Capture App Store screenshots (6.9-inch)
+        timeout-minutes: 15
+        continue-on-error: true
         run: |
           set -euo pipefail
           udid=$(xcrun simctl list devices available -j | python3 -c '
@@ -107,8 +111,13 @@ jobs:
           if [ -z "$udid" ]; then echo "::warning::No Pro Max simulator on this runner"; exit 0; fi
           xcrun simctl list devices | grep "$udid"
           xcrun simctl boot "$udid" || true
-          xcrun simctl bootstatus "$udid" -b
-          xcrun simctl status_bar "$udid" override --time 9:41 --batteryState charged --batteryLevel 100 --cellularBars 4 --wifiBars 3 --operatorName "" || true
+          # Wait up to 4 minutes for the simulator to finish booting.
+          for i in $(seq 1 48); do
+            if xcrun simctl list devices | grep "$udid" | grep -q Booted && xcrun simctl spawn "$udid" launchctl print system >/dev/null 2>&1; then break; fi
+            sleep 5
+          done
+          sleep 15
+          xcrun simctl status_bar "$udid" override --time 9:41 --batteryState charged --batteryLevel 100 --cellularBars 4 --wifiBars 3 || true
           xcrun simctl install "$udid" build/Build/Products/Debug-iphonesimulator/MileageLog.app
           mkdir -p shots/store
           shot() {
