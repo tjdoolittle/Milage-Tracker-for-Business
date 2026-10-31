@@ -27,7 +27,7 @@ To change captions, edit `compose_store.py` (screenshots) or `compose_header.py`
 
 | Field | Value |
 | --- | --- |
-| Name (30) | `Mileage Log` |
+| Name (30) | `Tax Mileage Tracker` |
 | Subtitle (30) | `Business miles, tracked by GPS` |
 | Category | Primary: **Business**. Secondary: **Finance** |
 | Content rights | Does not contain, show, or access third-party content |
@@ -76,10 +76,10 @@ Mileage Log helps you keep records. It isn't tax advice; check with a tax profes
 ### Keywords (100)
 
 ```
-tracker,IRS,deduction,trip,tax,expense,odometer,reimbursement,1099,self-employed,writeoff,gig,driver
+log,record,IRS,deduction,trip,expense,odometer,reimbursement,1099,self-employed,writeoff,gig,driver
 ```
 
-Words already in the name or subtitle (mileage, log, business, miles, GPS) aren't repeated:
+Words already in the name or subtitle (tax, mileage, tracker, business, miles, GPS) aren't repeated:
 Apple searches those fields too. Don't add brand names like Uber, DoorDash, or MileIQ;
 Apple rejects trademarked keywords.
 

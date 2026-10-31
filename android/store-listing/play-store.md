@@ -21,7 +21,7 @@ The app bundle to upload is the `.aab` on the
 
 Play Console → **Create app**:
 
-- App name: `Mileage Log: Business Miles`
+- App name: `Tax Mileage Tracker`
 - Default language: English (United States)
 - App or game: **App**
 - Free or paid: **Free**
@@ -32,7 +32,7 @@ Play Console → **Create app**:
 **App name (30)**
 
 ```
-Mileage Log: Business Miles
+Tax Mileage Tracker
 ```
 
 **Short description (80)**
