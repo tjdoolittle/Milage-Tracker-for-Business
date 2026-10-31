@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "android/**"
+      - "!android/store-listing/**"
       - ".github/workflows/android.yml"
   workflow_dispatch:
 

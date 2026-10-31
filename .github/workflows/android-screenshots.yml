@@ -10,6 +10,7 @@ on:
     branches: [main]
     paths:
       - "android/**"
+      - "!android/store-listing/**"
       - ".github/workflows/android-screenshots.yml"
 
 concurrency:
