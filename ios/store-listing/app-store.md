@@ -4,7 +4,7 @@ Everything App Store Connect asks for, ready to paste. Character limits are
 Apple's; every field here fits.
 
 Screenshots are in [`screenshots/`](screenshots/) (6.9-inch iPhone, 1320 x 2868):
-home, drive detected, review, rates, dark mode. Upload them in that order under
+drive detected, review, home, rates, dark mode (numbered 1 to 5). Upload them in that order under
 **iPhone 6.9" Display**. To change the captions, edit `compose_store.py` and rerun it. Apple scales them down for
 smaller iPhones, so no other sizes are needed. The app is iPhone-only, so no
 iPad screenshots either.

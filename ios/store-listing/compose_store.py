@@ -16,10 +16,12 @@ W, H = 1320, 2868
 GREEN, INK_DARK = (10, 106, 74), (14, 19, 17)
 SOFT = (207, 231, 220)
 
+# Upload order. Only the first three show in search results, so they tell the core story:
+# the app logs the drive, you tap Business, and the year adds up.
 SLIDES = [
-    ("1-home", "Every business mile, added up", "Your miles and IRS deduction for the year, at a glance.", GREEN),
     ("2-drive-detected", "Logs drives on its own", "Automatic detection measures each trip with your phone in your pocket.", GREEN),
     ("3-review", "Business or personal? One tap.", "GPS miles and addresses fill in. Add the purpose and save.", GREEN),
+    ("1-home", "Every business mile, added up", "Your miles and IRS deduction for the year, at a glance.", GREEN),
     ("4-settings", "Midyear rate changes, handled", "Each trip uses the IRS rate for the day you drove: 72.5¢, then 76¢.", GREEN),
     ("5-dark", "Private, and easy on the eyes", "Dark mode, no account, and your trips never leave your phone.", INK_DARK),
 ]
@@ -55,7 +57,7 @@ def phone(shot, width):
     ph.paste(s, (b, b), m)
     return ph
 
-for name, head, sub, bg in SLIDES:
+for order, (name, head, sub, bg) in enumerate(SLIDES, start=1):
     src = os.path.join(RAW, name + ".png")
     if not os.path.exists(src): print("missing", src); continue
     img = Image.new("RGB", (W, H), bg); d = ImageDraw.Draw(img)
@@ -75,5 +77,6 @@ for name, head, sub, bg in SLIDES:
     shadow.paste((0, 0, 0, 120), (80, 80), p.split()[3]); shadow = shadow.filter(ImageFilter.GaussianBlur(30))
     img.paste(shadow, ((W - p.width) // 2 - 80 + 10, top - 80 + 28), shadow)
     img.paste(p, ((W - p.width) // 2, top), p)
-    img.save(os.path.join(OUT, f"mileage-log-{name}.png"), optimize=True)
+    label = name.split("-", 1)[1]
+    img.save(os.path.join(OUT, f"{order}-mileage-log-{label}.png"), optimize=True)
     print("wrote", name, img.size)
