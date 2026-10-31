@@ -98,7 +98,7 @@ sent to you or anyone else.
 
 **Sign-in required:** No.
 
-**Contact:** your name, phone, and email.
+**Contact:** your name, phone, and `doolittle.thomas+apps@gmail.com`.
 
 **Notes** (this matters: Apple looks closely at apps that use location *Always*):
 
