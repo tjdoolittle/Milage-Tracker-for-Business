@@ -63,10 +63,12 @@ Mileage Log helps you keep records. It isn't tax advice; check with a tax profes
 ### Keywords (100)
 
 ```
-tracker,IRS,deduction,business,miles,trip,GPS,tax,expense,drive,odometer,reimbursement,1099,driver
+tracker,IRS,deduction,trip,tax,expense,odometer,reimbursement,1099,self-employed,writeoff,gig,driver
 ```
 
-("Mileage" and "Log" are already in the app name, so they aren't repeated here.)
+Words already in the name or subtitle (mileage, log, business, miles, GPS) aren't repeated:
+Apple searches those fields too. Don't add brand names like Uber, DoorDash, or MileIQ;
+Apple rejects trademarked keywords.
 
 ### URLs
 
