@@ -42,6 +42,8 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
+            // Ship native debug symbols inside the AAB so Play Console can decode native crashes.
+            ndk { debugSymbolLevel = "SYMBOL_TABLE" }
             if (canSign) signingConfig = signingConfigs.getByName("sideload")
         }
     }
