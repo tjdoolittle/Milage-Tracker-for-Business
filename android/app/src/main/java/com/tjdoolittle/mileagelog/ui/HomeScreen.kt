@@ -202,10 +202,8 @@ private fun IntroCard(onDismiss: () -> Unit) {
             .border(1.5.dp, p.sign, RoundedCornerShape(12.dp)).padding(14.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Text("HOW MILEAGE LOG WORKS", style = Type.label, color = p.signText)
-        Text(Store.RESPONSIBILITY, style = Type.body, color = p.ink)
-        Text("• Drives it detects show up under To Review. Tap Business or Personal.", style = Type.body, color = p.ink)
-        Text("• To add a trip yourself, tap + Log trip.", style = Type.body, color = p.ink)
+        Text("HOW IT WORKS", style = Type.label, color = p.signText)
+        Store.INTRO.forEach { Text(it, style = Type.body, color = p.ink) }
         TextButton(onClick = onDismiss, modifier = Modifier.align(Alignment.End)) {
             Text("GOT IT", style = Type.label, color = p.signText)
         }

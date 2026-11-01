@@ -116,6 +116,11 @@ object Store {
     )
     const val OTHER_PURPOSE = "Other"
     const val COMMUTE_NOTE = "Regular Everyday Commute is Not Deductible"
+    val INTRO = listOf(
+        "Tax Mileage Tracker automatically logs every trip you take.",
+        "To create your log, you must click \u201cLog trip\u201d after completing each trip that is to be filed.",
+        "Categorize your trips and provide other necessary tax information when logging, so that complete logs can simply be downloaded and submitted at tax time.",
+    )
     const val RESPONSIBILITY = "Mileage Log tracks all your trips, but you're responsible for the data you log. Check each trip before you count it."
 
     /**

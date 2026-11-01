@@ -232,10 +232,8 @@ struct IntroCard: View {
     var onDismiss: () -> Void
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            SignLabel(text: "How Mileage Log works", color: Palette.signText)
-            Text(Store.responsibility).font(Fonts.body()).foregroundStyle(Palette.ink)
-            Text("• Drives it detects show up under To Review. Tap Business or Personal.").font(Fonts.body()).foregroundStyle(Palette.ink)
-            Text("• To add a trip yourself, tap + Log trip.").font(Fonts.body()).foregroundStyle(Palette.ink)
+            SignLabel(text: "How it works", color: Palette.signText)
+            ForEach(Store.intro, id: \.self) { Text($0).font(Fonts.body()).foregroundStyle(Palette.ink) }
             HStack {
                 Spacer()
                 Button("Got it", action: onDismiss).font(Fonts.sign(14)).tint(Palette.signText)

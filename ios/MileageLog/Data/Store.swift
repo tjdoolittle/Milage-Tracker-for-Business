@@ -79,6 +79,11 @@ final class Store: ObservableObject {
     ]
     static let otherPurpose = "Other"
     static let commuteNote = "Regular Everyday Commute is Not Deductible"
+    static let intro = [
+        "Tax Mileage Tracker automatically logs every trip you take.",
+        "To create your log, you must click \u{201C}Log trip\u{201D} after completing each trip that is to be filed.",
+        "Categorize your trips and provide other necessary tax information when logging, so that complete logs can simply be downloaded and submitted at tax time.",
+    ]
     static let responsibility = "Mileage Log tracks all your trips, but you're responsible for the data you log. Check each trip before you count it."
 
     /// Save the home or work address. When it was found on the map it also becomes a saved
