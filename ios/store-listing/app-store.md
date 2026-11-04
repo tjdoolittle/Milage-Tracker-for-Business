@@ -50,10 +50,13 @@ LOGS DRIVES ON ITS OWN
 Turn on automatic drive detection and Tax Mileage Tracker notices when you start driving, measures the trip, and ends it when you park. Each drive lands in a review list with its miles and start and end addresses. Tap Business or Personal. That's it.
 
 OR TRACK IT YOURSELF
-Tap Start trip when you leave and Finish trip when you arrive. Or log a past drive by miles, round trip, or odometer readings.
+Tap Start trip when you leave and Finish trip when you arrive. Or tap + Log trip to add a drive by miles, round trip, or odometer readings.
 
 RECORDS THE IRS EXPECTS
-Every business trip keeps the date, where you started and ended, the miles, and the business purpose. Add a client or job and notes if you like.
+Every business trip keeps the date, where you started and ended, the miles, and the business purpose. Pick a purpose like Client Visits, Job Site Visits, Sales Calls, or Deliveries, or type your own. Add a client or job and notes if you like.
+
+HOME AND WORK, ONE TAP
+Save your home and work addresses and fill in a trip's route with one tap. Regular everyday commuting isn't deductible, and Tax Mileage Tracker flags trips between home and work so you can mark them personal.
 
 RATES THAT CHANGE MIDYEAR
 Each trip uses the IRS standard mileage rate in effect on the day you drove it. The 2026 change is built in: 72.5 cents per mile through June 30, then 76 cents from July 1. Add your own rate changes whenever the IRS announces one.
