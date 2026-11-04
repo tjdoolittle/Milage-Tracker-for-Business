@@ -84,7 +84,9 @@ final class Store: ObservableObject {
         "To create your log, you must click \u{201C}Log trip\u{201D} after completing each trip that is to be filed.",
         "Categorize your trips and provide other necessary tax information when logging, so that complete logs can simply be downloaded and submitted at tax time.",
     ]
-    static let responsibility = "Mileage Log tracks all your trips, but you're responsible for the data you log. Check each trip before you count it."
+    static let irsSourceURL = URL(string: "https://www.irs.gov/tax-professionals/standard-mileage-rates")!
+    static let govDisclaimer = "Tax Mileage Tracker is not affiliated with, endorsed by, or acting for the IRS or any government agency."
+    static let responsibility = "Tax Mileage Tracker tracks all your trips, but you're responsible for the data you log. Check each trip before you count it."
 
     /// Save the home or work address. When it was found on the map it also becomes a saved
     /// place, so GPS trips that start or end there get the address filled in.

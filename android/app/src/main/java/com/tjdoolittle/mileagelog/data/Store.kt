@@ -121,7 +121,9 @@ object Store {
         "To create your log, you must click \u201cLog trip\u201d after completing each trip that is to be filed.",
         "Categorize your trips and provide other necessary tax information when logging, so that complete logs can simply be downloaded and submitted at tax time.",
     )
-    const val RESPONSIBILITY = "Mileage Log tracks all your trips, but you're responsible for the data you log. Check each trip before you count it."
+    const val IRS_SOURCE_URL = "https://www.irs.gov/tax-professionals/standard-mileage-rates"
+    const val GOV_DISCLAIMER = "Tax Mileage Tracker is not affiliated with, endorsed by, or acting for the IRS or any government agency."
+    const val RESPONSIBILITY = "Tax Mileage Tracker tracks all your trips, but you're responsible for the data you log. Check each trip before you count it."
 
     /**
      * Save the home or work address. When it was found on the map, it also becomes a saved

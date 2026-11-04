@@ -44,10 +44,10 @@ Logs business drives with GPS and adds up your IRS mileage deduction.
 **Full description (4,000)**
 
 ```
-Mileage Log keeps the mileage records the IRS asks for, without the paperwork. It measures your drives with GPS, even with the phone in your pocket, and adds up your business miles and deduction for the year.
+Tax Mileage Tracker keeps the mileage records the IRS asks for, without the paperwork. It measures your drives with GPS, even with the phone in your pocket, and adds up your business miles and deduction for the year.
 
 LOGS DRIVES ON ITS OWN
-Turn on automatic drive detection and Mileage Log notices when you start driving, measures the trip, and ends it when you park. Each drive lands in a review list with its miles and start and end addresses. Tap Business or Personal. That's it.
+Turn on automatic drive detection and Tax Mileage Tracker notices when you start driving, measures the trip, and ends it when you park. Each drive lands in a review list with its miles and start and end addresses. Tap Business or Personal. That's it.
 
 OR TRACK IT YOURSELF
 Tap Start trip when you leave and Finish trip when you arrive. Or tap + Log trip to add a drive by miles, round trip, or odometer readings.
@@ -56,10 +56,14 @@ RECORDS THE IRS EXPECTS
 Every business trip keeps the date, where you started and ended, the miles, and the business purpose. Pick a purpose like Client Visits, Job Site Visits, Sales Calls, or Deliveries, or type your own. Add a client or job and notes if you like.
 
 HOME AND WORK, ONE TAP
-Save your home and work addresses and fill in a trip's route with one tap. Regular everyday commuting isn't deductible, and Mileage Log flags trips between home and work so you can mark them personal.
+Save your home and work addresses and fill in a trip's route with one tap. Regular everyday commuting isn't deductible, and Tax Mileage Tracker flags trips between home and work so you can mark them personal.
 
 RATES THAT CHANGE MIDYEAR
 Each trip uses the IRS standard mileage rate in effect on the day you drove it. The 2026 change is built in: 72.5 cents per mile through June 30, then 76 cents from July 1. Add your own rate changes whenever the IRS announces one.
+Source: IRS standard mileage rates, https://www.irs.gov/tax-professionals/standard-mileage-rates
+
+NOT A GOVERNMENT APP
+Tax Mileage Tracker is not affiliated with, endorsed by, or acting for the IRS or any government agency. Mileage rates are published by the IRS at the source link above. The app helps you keep records and isn't tax advice; you're responsible for the data you log. Check with a tax professional about your own situation.
 
 YOUR YEAR AT A GLANCE
 A highway-sign odometer shows the year's business miles, your deduction, this month's miles, and a month-by-month chart. Tap the year to look back at earlier tax years.
@@ -69,8 +73,6 @@ Export any year as a spreadsheet (CSV) with the date, route, purpose, miles, rat
 
 PRIVATE BY DESIGN
 No account, no ads, no tracking. Your trips and location stay on your phone unless you export them.
-
-Mileage Log tracks your trips, but you're responsible for the data you log. It helps you keep records and isn't tax advice; check with a tax professional about your own situation.
 ```
 
 **Graphics:** upload the icon, feature graphic, and the five phone screenshots

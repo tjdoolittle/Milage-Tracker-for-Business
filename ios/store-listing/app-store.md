@@ -44,10 +44,10 @@ Turn on automatic drive detection and every drive lands in your log. Tap Busines
 ### Description (4,000)
 
 ```
-Mileage Log keeps the mileage records the IRS asks for, without the paperwork. It measures your drives with GPS, even with the phone in your pocket, and adds up your business miles and deduction for the year.
+Tax Mileage Tracker keeps the mileage records the IRS asks for, without the paperwork. It measures your drives with GPS, even with the phone in your pocket, and adds up your business miles and deduction for the year.
 
 LOGS DRIVES ON ITS OWN
-Turn on automatic drive detection and Mileage Log notices when you start driving, measures the trip, and ends it when you park. Each drive lands in a review list with its miles and start and end addresses. Tap Business or Personal. That's it.
+Turn on automatic drive detection and Tax Mileage Tracker notices when you start driving, measures the trip, and ends it when you park. Each drive lands in a review list with its miles and start and end addresses. Tap Business or Personal. That's it.
 
 OR TRACK IT YOURSELF
 Tap Start trip when you leave and Finish trip when you arrive. Or log a past drive by miles, round trip, or odometer readings.
@@ -57,20 +57,22 @@ Every business trip keeps the date, where you started and ended, the miles, and 
 
 RATES THAT CHANGE MIDYEAR
 Each trip uses the IRS standard mileage rate in effect on the day you drove it. The 2026 change is built in: 72.5 cents per mile through June 30, then 76 cents from July 1. Add your own rate changes whenever the IRS announces one.
+Source: IRS standard mileage rates, https://www.irs.gov/tax-professionals/standard-mileage-rates
+
+NOT A GOVERNMENT APP
+Tax Mileage Tracker is not affiliated with, endorsed by, or acting for the IRS or any government agency. Mileage rates are published by the IRS at the source link above. The app helps you keep records and isn't tax advice; you're responsible for the data you log. Check with a tax professional about your own situation.
 
 YOUR YEAR AT A GLANCE
 A highway-sign odometer shows the year's business miles, your deduction, this month's miles, and a month-by-month chart. Tap the year to look back at earlier tax years.
 
 NAMES YOUR REGULAR STOPS
-Rename an address once, like "Shop" or a client's house, and Mileage Log uses that name on future trips that start or end there.
+Rename an address once, like "Shop" or a client's house, and Tax Mileage Tracker uses that name on future trips that start or end there.
 
 READY FOR TAX TIME
 Export any year as a spreadsheet (CSV) with the date, route, purpose, miles, rate, and deduction for every trip, plus totals. Save a backup to Files or iCloud Drive and restore it on a new phone.
 
 PRIVATE BY DESIGN
 No account, no ads, no tracking. Your trips and location never leave your phone unless you export them.
-
-Mileage Log helps you keep records. It isn't tax advice; check with a tax professional about your own situation.
 ```
 
 ### Keywords (100)

@@ -211,7 +211,7 @@ fun SettingsScreen(data: AppData, year: Int, resumeTick: Int, onClose: () -> Uni
             }
             Card {
                 Text("Your log", style = Type.bodyBold, color = p.ink)
-                Text(Store.RESPONSIBILITY + " Mileage Log isn't tax advice.", style = Type.small, color = p.muted)
+                Text(Store.RESPONSIBILITY + " This app isn't tax advice. " + Store.GOV_DISCLAIMER, style = Type.small, color = p.muted)
                 if (s.introDismissed) {
                     Text("Show the how-it-works tips again", style = Type.bodyBold, color = p.signText,
                         modifier = Modifier.clickable { Store.setSettings(Store.data.settings.copy(introDismissed = false)); toast(ctx, "Tips are back on the home screen") }
@@ -334,6 +334,11 @@ private fun RatesCard(s: com.tjdoolittle.mileagelog.data.Settings) {
             }
         }
         Text("IRS business rate for 2026: 72.5¢ through June 30, then 76¢ from July 1 through December 31.", style = Type.small, color = p.muted)
+        Text("Source: IRS standard mileage rates (irs.gov)", style = Type.bodyBold, color = p.signText,
+            modifier = Modifier.fillMaxWidth().clickable {
+                runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Store.IRS_SOURCE_URL))) }
+            }.padding(vertical = 6.dp))
+        Text(Store.GOV_DISCLAIMER, style = Type.small, color = p.muted)
     }
 
     if (adding || editing != null) {

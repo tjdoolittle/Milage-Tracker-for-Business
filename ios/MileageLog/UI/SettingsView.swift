@@ -30,7 +30,7 @@ struct SettingsView: View {
                 exportSection
                 if !store.data.settings.places.isEmpty { placesSection }
                 Section {
-                    Text(Store.responsibility + " Mileage Log isn't tax advice.").font(Fonts.body(14)).foregroundStyle(Palette.muted)
+                    Text(Store.responsibility + " This app isn't tax advice. " + Store.govDisclaimer).font(Fonts.body(14)).foregroundStyle(Palette.muted)
                     if store.data.settings.introDismissed {
                         Button("Show the how-it-works tips again") {
                             var s = store.data.settings
@@ -143,10 +143,13 @@ struct SettingsView: View {
             if store.isCustomSchedule {
                 Button("Use IRS rates") { store.useIRSRates(); message = "Using the IRS rates" }
             }
+            Link(destination: Store.irsSourceURL) {
+                Label("Source: IRS standard mileage rates (irs.gov)", systemImage: "link")
+            }
         } header: {
             Text("Mileage rates")
         } footer: {
-            Text("Each rate applies from its start date until the next one starts, and every trip uses the rate in effect on the day it was driven. IRS business rate for 2026: 72.5¢ through June 30, then 76¢ from July 1 through December 31.")
+            Text("Each rate applies from its start date until the next one starts, and every trip uses the rate in effect on the day it was driven. IRS business rate for 2026: 72.5¢ through June 30, then 76¢ from July 1 through December 31. " + Store.govDisclaimer)
         }
     }
 
