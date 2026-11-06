@@ -38,7 +38,7 @@ jobs:
 
       - name: Build the debug app
         working-directory: android
-        run: gradle assembleDebug --no-daemon
+        run: gradle assembleDebug assembleRelease --no-daemon
 
       - name: Enable KVM
         run: |

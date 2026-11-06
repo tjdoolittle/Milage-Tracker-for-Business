@@ -44,4 +44,24 @@ shot 4-settings --es screen settings
 adb shell cmd uimode night yes
 shot 5-dark --ez active true
 adb shell cmd uimode night no
+
+# Smoke test the minified release build: install it, open each screen, fail on a crash.
+REL=$(ls android/app/build/outputs/apk/release/*.apk 2>/dev/null | head -1)
+if [ -n "$REL" ]; then
+  adb uninstall "$PKG" >/dev/null 2>&1 || true
+  adb install -r "$REL"
+  adb logcat -c
+  adb shell am start -W -n "$PKG/.ui.MainActivity" >/dev/null; sleep 6
+  adb exec-out screencap -p > "$OUT/release-home.png"
+  adb shell input keyevent KEYCODE_BACK; sleep 2
+  adb shell am start -W -n "$PKG/.ui.MainActivity" >/dev/null; sleep 3
+  adb shell am force-stop "$PKG"
+  adb shell monkey -p "$PKG" --throttle 300 -s 7 200 >/dev/null 2>&1 || true
+  sleep 2
+  adb logcat -d > "$OUT/release-logcat.txt"
+  if grep -q "Process: $PKG" "$OUT/release-logcat.txt"; then
+    echo "Release build crashed"; grep -B2 -A40 "Process: $PKG" "$OUT/release-logcat.txt" | head -80; exit 1
+  fi
+  echo "release smoke test passed"
+fi
 ls -la "$OUT"

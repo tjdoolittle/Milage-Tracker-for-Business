@@ -41,10 +41,16 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // R8 shrinks and obfuscates the code (Play's code-optimization check). The mapping
+            // file goes into the AAB automatically, so Play Console can still read crash reports.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             // Ship native debug symbols inside the AAB so Play Console can decode native crashes.
             ndk { debugSymbolLevel = "SYMBOL_TABLE" }
-            if (canSign) signingConfig = signingConfigs.getByName("sideload")
+            // Without the real key (forks, the screenshot job) sign with the debug key so the
+            // release build can still be installed and smoke-tested.
+            signingConfig = signingConfigs.getByName(if (canSign) "sideload" else "debug")
         }
     }
 
@@ -70,6 +76,8 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-core")
     implementation("androidx.activity:activity-compose:1.9.3")
+    // play-services-location pulls in fragment 1.1.0, which Google flags as outdated.
+    implementation("androidx.fragment:fragment-ktx:1.8.5")
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
