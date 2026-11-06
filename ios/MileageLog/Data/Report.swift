@@ -210,7 +210,7 @@ enum ReportPDF {
             w.heading("Vehicle information")
             w.paragraph("The numbers Schedule C (Form 1040), Part IV, asks for. Total miles come from the odometer readings entered in Settings.",
                         attrs(9, color: muted), gap: 2)
-            let vCols: [(CGFloat, Bool)] = [(0.22, false), (0.13, false), (0.19, true), (0.12, true), (0.11, true), (0.12, true), (0.11, true)]
+            let vCols: [(CGFloat, Bool)] = [(0.2, false), (0.13, false), (0.18, true), (0.13, true), (0.11, true), (0.12, true), (0.13, true)]
             let head = attrs(8.5, bold: true, color: muted)
             let body = attrs(9.5)
             w.row(["Vehicle", "In service", "Odometer", "Total miles", "Business", "Commuting", "Other"], vCols, head)

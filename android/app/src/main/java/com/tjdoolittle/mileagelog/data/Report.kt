@@ -193,7 +193,7 @@ object ReportPdf {
         // ---- Vehicles (Schedule C, Part IV) ----
         w.heading("Vehicle information")
         w.paragraph("The numbers Schedule C (Form 1040), Part IV, asks for. Total miles come from the odometer readings entered in Settings.", paint(9f, color = muted), 2f)
-        val vCols = listOf(0.22f to false, 0.13f to false, 0.19f to true, 0.12f to true, 0.11f to true, 0.12f to true, 0.11f to true)
+        val vCols = listOf(0.2f to false, 0.13f to false, 0.18f to true, 0.13f to true, 0.11f to true, 0.12f to true, 0.13f to true)
         val head = paint(8.5f, bold = true, color = muted)
         val body = paint(9.5f)
         w.row(listOf("Vehicle", "In service", "Odometer", "Total miles", "Business", "Commuting", "Other"), vCols, head)
