@@ -156,7 +156,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Publish results to the ci-ios branch
-        if: always() && github.event_name == 'push'
+        if: always()
         working-directory: ${{ github.workspace }}
         run: |
           set -e
@@ -174,4 +174,4 @@ jobs:
           cp -r /tmp/out/* .
           git add -A
           git commit -qm "iOS build results for run ${{ github.run_number }}"
-          git push -fq origin HEAD:ci-ios
+          git push -fq origin HEAD:${{ github.event_name == 'pull_request' && 'ci-ios-pr' || 'ci-ios' }}

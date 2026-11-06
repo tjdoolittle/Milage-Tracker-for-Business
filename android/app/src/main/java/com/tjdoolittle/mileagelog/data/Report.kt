@@ -125,7 +125,7 @@ object ReportPdf {
 
     private fun Writer.heading(text: String) {
         room(60f)
-        y += 14f
+        y += 10f
         val p = paint(12f, bold = true, color = green)
         y += 12f
         c.drawText(text.uppercase(Locale.US), M, y, p)
@@ -136,7 +136,7 @@ object ReportPdf {
 
     /** One table row. `cols` are (width, right-aligned); widths are shares of the page width. */
     private fun Writer.row(cells: List<String>, cols: List<Pair<Float, Boolean>>, p: Paint, shade: Boolean = false, rule: Boolean = true) {
-        val h = p.textSize + 9f
+        val h = p.textSize + 7f
         room(h)
         if (shade) c.drawRect(M, y, W - M, y + h, Paint().apply { color = band })
         var x = M
@@ -146,7 +146,7 @@ object ReportPdf {
             val w = total * share
             val t = fit(cell, p, w - 8f)
             val tx = if (right) x + w - 4f - p.measureText(t) else x + 4f
-            c.drawText(t, tx, y + p.textSize + 3f, p)
+            c.drawText(t, tx, y + p.textSize + 2f, p)
             x += w
         }
         y += h
@@ -193,7 +193,7 @@ object ReportPdf {
         // ---- Vehicles (Schedule C, Part IV) ----
         w.heading("Vehicle information")
         w.paragraph("The numbers Schedule C (Form 1040), Part IV, asks for. Total miles come from the odometer readings entered in Settings.", paint(9f, color = muted), 2f)
-        val vCols = listOf(0.26f to false, 0.14f to false, 0.12f to true, 0.12f to true, 0.12f to true, 0.12f to true, 0.12f to true)
+        val vCols = listOf(0.22f to false, 0.13f to false, 0.19f to true, 0.12f to true, 0.11f to true, 0.12f to true, 0.11f to true)
         val head = paint(8.5f, bold = true, color = muted)
         val body = paint(9.5f)
         w.row(listOf("Vehicle", "In service", "Odometer", "Total miles", "Business", "Commuting", "Other"), vCols, head)
@@ -230,7 +230,7 @@ object ReportPdf {
         w.newPage()
         w.heading("Trip log")
         val multi = s.vehicles.size > 1
-        val tCols = if (multi) listOf(0.1f to false, 0.38f to false, 0.14f to false, 0.1f to true, 0.08f to true, 0.11f to true, 0.09f to true)
+        val tCols = if (multi) listOf(0.09f to false, 0.34f to false, 0.19f to false, 0.1f to true, 0.08f to true, 0.11f to true, 0.09f to true)
         else listOf(0.1f to false, 0.5f to false, 0.11f to true, 0.08f to true, 0.11f to true, 0.1f to true)
         val tHead = if (multi) listOf("Date", "Route and purpose", "Vehicle", "Miles", "Rate", "Deduction", "Parking")
         else listOf("Date", "Route and purpose", "Miles", "Rate", "Deduction", "Parking")

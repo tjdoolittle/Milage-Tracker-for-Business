@@ -144,7 +144,7 @@ enum ReportPDF {
 
         func heading(_ s: String) {
             room(60)
-            y += 16
+            y += 12
             text(s.uppercased(), M, y, attrs(12, bold: true, color: green))
             y += 18
             fill(CGRect(x: M, y: y, width: W - 2 * M, height: 1.2), green)
@@ -154,7 +154,7 @@ enum ReportPDF {
         /// One table row. `cols` are (share of page width, right-aligned).
         func row(_ cells: [String], _ cols: [(CGFloat, Bool)], _ a: [NSAttributedString.Key: Any], shade: Bool = false, rule: Bool = true) {
             let size = (a[.font] as? UIFont)?.pointSize ?? 9
-            let h = size + 10
+            let h = size + 8
             room(h)
             if shade { fill(CGRect(x: M, y: y, width: W - 2 * M, height: h), band) }
             var x = M
@@ -164,7 +164,7 @@ enum ReportPDF {
                 let w = total * share
                 let t = fit(cell, a, w - 8)
                 let tw = (t as NSString).size(withAttributes: a).width
-                text(t, right ? x + w - 4 - tw : x + 4, y + 4, a)
+                text(t, right ? x + w - 4 - tw : x + 4, y + 3, a)
                 x += w
             }
             y += h
@@ -210,7 +210,7 @@ enum ReportPDF {
             w.heading("Vehicle information")
             w.paragraph("The numbers Schedule C (Form 1040), Part IV, asks for. Total miles come from the odometer readings entered in Settings.",
                         attrs(9, color: muted), gap: 2)
-            let vCols: [(CGFloat, Bool)] = [(0.26, false), (0.14, false), (0.12, true), (0.12, true), (0.12, true), (0.12, true), (0.12, true)]
+            let vCols: [(CGFloat, Bool)] = [(0.22, false), (0.13, false), (0.19, true), (0.12, true), (0.11, true), (0.12, true), (0.11, true)]
             let head = attrs(8.5, bold: true, color: muted)
             let body = attrs(9.5)
             w.row(["Vehicle", "In service", "Odometer", "Total miles", "Business", "Commuting", "Other"], vCols, head)
@@ -250,7 +250,7 @@ enum ReportPDF {
             w.heading("Trip log")
             let multi = s.vehicles.count > 1
             let tCols: [(CGFloat, Bool)] = multi
-                ? [(0.1, false), (0.38, false), (0.14, false), (0.1, true), (0.08, true), (0.11, true), (0.09, true)]
+                ? [(0.09, false), (0.34, false), (0.19, false), (0.1, true), (0.08, true), (0.11, true), (0.09, true)]
                 : [(0.1, false), (0.5, false), (0.11, true), (0.08, true), (0.11, true), (0.1, true)]
             let tHead = multi ? ["Date", "Route and purpose", "Vehicle", "Miles", "Rate", "Deduction", "Parking"]
                               : ["Date", "Route and purpose", "Miles", "Rate", "Deduction", "Parking"]
