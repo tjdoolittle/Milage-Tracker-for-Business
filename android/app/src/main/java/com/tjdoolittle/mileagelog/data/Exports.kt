@@ -16,19 +16,21 @@ object Exports {
         val d = Store.data
         val s = d.settings
         val trips = d.trips.filter { it.status == Status.LOGGED && it.year == year }.sortedWith(compareBy({ it.date }, { it.startTime ?: it.createdAt }))
-        val rows = mutableListOf<List<Any>>(listOf("Date", "From", "To", "Business purpose", "Client", "Odometer start", "Odometer end",
-            "Round trip", "Miles", "Rate per mile", "Deduction", "Notes", "Source"))
+        val rows = mutableListOf<List<Any>>(listOf("Date", "From", "To", "Business purpose", "Client", "Vehicle", "Odometer start", "Odometer end",
+            "Round trip", "Miles", "Rate per mile", "Deduction", "Parking and tolls", "Notes", "Source"))
         var total = 0.0
         var totalDeduction = 0.0
+        var totalParking = 0.0
         trips.forEach { t ->
             val rate = Store.rateOn(t.date, s)
             val ded = Math.round(t.miles * rate * 100) / 100.0
-            total += t.miles; totalDeduction += ded
-            rows += listOf(t.date, t.from, t.to, t.purpose, t.client, t.odoStart ?: "", t.odoEnd ?: "",
+            total += t.miles; totalDeduction += ded; totalParking += t.parking
+            rows += listOf(t.date, t.from, t.to, t.purpose, t.client, Store.vehicleFor(t, s)?.name ?: "", t.odoStart ?: "", t.odoEnd ?: "",
                 if (t.roundTrip) "Yes" else "", "%.1f".format(Locale.US, t.miles), "%.3f".format(Locale.US, rate), "%.2f".format(Locale.US, ded),
-                t.notes, t.source ?: "Manual")
+                if (t.parking > 0) "%.2f".format(Locale.US, t.parking) else "", t.notes, t.source ?: "Manual")
         }
-        rows += listOf("Total", "", "", "", "", "", "", "", "%.1f".format(Locale.US, total), "", "%.2f".format(Locale.US, totalDeduction), "", "")
+        rows += listOf("Total", "", "", "", "", "", "", "", "", "%.1f".format(Locale.US, total), "", "%.2f".format(Locale.US, totalDeduction),
+            "%.2f".format(Locale.US, totalParking), "", "")
         return rows.joinToString("\n") { r -> r.joinToString(",") { q(it) } }
     }
 
@@ -55,7 +57,9 @@ object Exports {
         Store.update { d ->
             val mine = d.settings
             val places = mine.places + theirs.places.filter { p -> mine.places.none { Geo.meters(p.lat, p.lng, it.lat, it.lng) < 200 } }
-            d.copy(trips = d.trips + add, settings = mine.copy(rates = theirs.rates + mine.rates, ratePeriods = mine.ratePeriods ?: theirs.ratePeriods, places = places))
+            val vehicles = mine.vehicles + theirs.vehicles.filter { v -> mine.vehicles.none { it.id == v.id } }
+            d.copy(trips = d.trips + add, settings = mine.copy(rates = theirs.rates + mine.rates, ratePeriods = mine.ratePeriods ?: theirs.ratePeriods,
+                places = places, vehicles = vehicles, reportName = mine.reportName.ifBlank { theirs.reportName }))
         }
         return add.size to (incoming.size - add.size)
     }

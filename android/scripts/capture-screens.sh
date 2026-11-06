@@ -45,6 +45,12 @@ adb shell cmd uimode night yes
 shot 5-dark --ez active true
 adb shell cmd uimode night no
 
+# Sample tax report (debug build writes it from the demo data).
+adb shell am force-stop "$PKG"
+adb shell am start -W -n "$PKG/.ui.MainActivity" --ez demo true --ez pdf true >/dev/null
+sleep 6
+adb pull "/sdcard/Android/data/$PKG/files/sample-report.pdf" "$OUT/sample-report.pdf" || echo "no sample report"
+
 # Smoke test the minified release build: install it, open each screen, fail on a crash.
 REL=$(ls android/app/build/outputs/apk/release/*.apk 2>/dev/null | head -1)
 if [ -n "$REL" ]; then

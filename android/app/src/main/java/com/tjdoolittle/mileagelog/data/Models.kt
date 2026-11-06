@@ -32,6 +32,8 @@ data class Trip(
     val endLat: Double? = null,
     val endLng: Double? = null,
     val gKey: String? = null,
+    val parking: Double = 0.0,     // parking and tolls paid on this trip, in dollars
+    val vehicleId: String = "",    // "" = the first vehicle
 ) {
     val year: Int get() = date.take(4).toIntOrNull() ?: 0
     val month: Int get() = date.substring(5, 7).toIntOrNull() ?: 1
@@ -48,6 +50,8 @@ data class Trip(
         startLat?.let { put("startLat", it) }; startLng?.let { put("startLng", it) }
         endLat?.let { put("endLat", it) }; endLng?.let { put("endLng", it) }
         gKey?.let { put("gKey", it) }
+        if (parking > 0) put("parking", parking)
+        if (vehicleId.isNotEmpty()) put("vehicleId", vehicleId)
     }
 
     companion object {
@@ -67,6 +71,8 @@ data class Trip(
                 startLat = o.optDoubleOrNull("startLat"), startLng = o.optDoubleOrNull("startLng"),
                 endLat = o.optDoubleOrNull("endLat"), endLng = o.optDoubleOrNull("endLng"),
                 gKey = o.optStringOrNull("gKey"),
+                parking = o.optDouble("parking", 0.0).takeIf { !it.isNaN() && it > 0 } ?: 0.0,
+                vehicleId = o.optString("vehicleId"),
             )
         }
     }
@@ -78,6 +84,36 @@ data class Place(val name: String, val lat: Double, val lng: Double) {
         fun fromJson(o: JSONObject): Place? {
             val n = o.optString("name"); if (n.isEmpty()) return null
             return Place(n, o.optDouble("lat"), o.optDouble("lng"))
+        }
+    }
+}
+
+/** Odometer readings for one tax year. */
+data class YearOdo(val start: Double? = null, val end: Double? = null)
+
+/** A vehicle used for business. Odometer readings by year feed Schedule C, Part IV in the tax report. */
+data class Vehicle(
+    val id: String,
+    val name: String,
+    val inService: String = "",              // yyyy-MM-dd the vehicle was first used for business
+    val odometer: Map<Int, YearOdo> = emptyMap(),
+) {
+    fun toJson(): JSONObject = JSONObject().apply {
+        put("id", id); put("name", name); put("inService", inService)
+        put("odometer", JSONObject().also { o ->
+            odometer.forEach { (y, r) ->
+                o.put(y.toString(), JSONObject().put("start", r.start ?: JSONObject.NULL).put("end", r.end ?: JSONObject.NULL))
+            }
+        })
+    }
+    companion object {
+        fun fromJson(o: JSONObject): Vehicle? {
+            val id = o.optString("id"); if (id.isEmpty()) return null
+            val odo = mutableMapOf<Int, YearOdo>()
+            o.optJSONObject("odometer")?.let { m ->
+                m.keys().forEach { k -> val y = k.toIntOrNull(); val r = m.optJSONObject(k); if (y != null && r != null) odo[y] = YearOdo(r.optDoubleOrNull("start"), r.optDoubleOrNull("end")) }
+            }
+            return Vehicle(id, o.optString("name").ifBlank { "Vehicle" }, o.optString("inService"), odo)
         }
     }
 }
@@ -94,6 +130,8 @@ data class Settings(
     val homeAddress: String = "",
     val workAddress: String = "",
     val introDismissed: Boolean = false,
+    val vehicles: List<Vehicle> = emptyList(),
+    val reportName: String = "",                       // name or business printed on the tax report
 ) {
     fun toJson(): JSONObject = JSONObject().apply {
         put("rates", JSONObject().also { r -> rates.forEach { (y, v) -> r.put(y.toString(), v) } })
@@ -104,6 +142,8 @@ data class Settings(
         put("homeAddress", homeAddress)
         put("workAddress", workAddress)
         put("introDismissed", introDismissed)
+        put("vehicles", JSONArray().also { a -> vehicles.forEach { a.put(it.toJson()) } })
+        put("reportName", reportName)
     }
     companion object {
         fun fromJson(o: JSONObject?): Settings {
@@ -122,6 +162,8 @@ data class Settings(
                 autoDetect = o.optBoolean("autoDetect", false), minAutoMiles = o.optDouble("minAutoMiles", 0.5),
                 homeAddress = o.optString("homeAddress"), workAddress = o.optString("workAddress"),
                 introDismissed = o.optBoolean("introDismissed", false),
+                vehicles = o.optJSONArray("vehicles")?.let { a -> (0 until a.length()).mapNotNull { a.optJSONObject(it)?.let(Vehicle::fromJson) } } ?: emptyList(),
+                reportName = o.optString("reportName"),
             )
         }
     }

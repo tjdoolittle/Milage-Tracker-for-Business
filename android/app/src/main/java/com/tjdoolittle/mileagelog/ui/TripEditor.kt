@@ -95,6 +95,8 @@ fun TripEditor(trip: Trip, isNew: Boolean, onClose: () -> Unit) {
     val purpose = if (purposeChoice == Store.OTHER_PURPOSE) purposeOther else purposeChoice
     var client by rememberSaveable { mutableStateOf(trip.client) }
     var notes by rememberSaveable { mutableStateOf(trip.notes) }
+    var parking by rememberSaveable { mutableStateOf(if (trip.parking > 0) String.format(Locale.US, "%.2f", trip.parking) else "") }
+    var vehicleId by rememberSaveable { mutableStateOf(Store.vehicleFor(trip)?.id ?: "") }
     var error by rememberSaveable { mutableStateOf<String?>(null) }
     var confirmDelete by rememberSaveable { mutableStateOf(false) }
 
@@ -131,6 +133,8 @@ fun TripEditor(trip: Trip, isNew: Boolean, onClose: () -> Unit) {
             roundTrip = !odoMode && roundTrip,
             odoStart = if (odoMode) parseNum(odo1) else null, odoEnd = if (odoMode) parseNum(odo2) else null,
             status = status,
+            parking = parseNum(parking.replace("$", ""))?.takeIf { it > 0 }?.let { Math.round(it * 100) / 100.0 } ?: 0.0,
+            vehicleId = vehicleId,
         )
         Store.saveTrip(t)
         if (status == Status.LOGGED) {
@@ -225,6 +229,19 @@ fun TripEditor(trip: Trip, isNew: Boolean, onClose: () -> Unit) {
             }
             Field("Client or job (optional)", client, { client = it })
             Chips(recentClients) { client = it }
+            Field("Parking and tolls, $ (optional)", parking, { parking = it }, number = true)
+            if (s.vehicles.size > 1) {
+                SectionLabel("Vehicle")
+                Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    s.vehicles.forEach { v ->
+                        val sel = v.id == vehicleId
+                        Text(v.name, style = Type.bodyBold.copy(fontSize = 14.sp), color = if (sel) p.signInk else p.ink, maxLines = 1,
+                            modifier = Modifier.clip(CircleShape).background(if (sel) p.sign else p.surface)
+                                .border(1.dp, if (sel) p.sign else p.line, CircleShape)
+                                .clickable { vehicleId = v.id }.padding(horizontal = 14.dp, vertical = 6.dp))
+                    }
+                }
+            }
             Field("Notes (optional)", notes, { notes = it }, singleLine = false)
             error?.let { Text(it, style = Type.bodyBold, color = p.danger) }
             if (!isNew) {
