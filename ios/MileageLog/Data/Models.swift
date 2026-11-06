@@ -30,6 +30,8 @@ struct Trip: Identifiable, Equatable, Codable {
     var endLat: Double? = nil
     var endLng: Double? = nil
     var gKey: String? = nil
+    var parking: Double = 0          // parking and tolls paid on this trip, in dollars
+    var vehicleId: String = ""       // "" = the first vehicle
 
     var year: Int { Int(date.prefix(4)) ?? 0 }
     var month: Int { Int(date.dropFirst(5).prefix(2)) ?? 1 }
@@ -40,7 +42,7 @@ struct Trip: Identifiable, Equatable, Codable {
 
     enum CodingKeys: String, CodingKey {
         case id, date, miles, purpose, client, from, to, notes, roundTrip, odoStart, odoEnd, createdAt,
-             source, status, startTime, endTime, startLat, startLng, endLat, endLng, gKey
+             source, status, startTime, endTime, startLat, startLng, endLat, endLng, gKey, parking, vehicleId
     }
 
     // Lenient decoding: the web app writes some numbers as strings and times as ISO dates.
@@ -65,6 +67,36 @@ struct Trip: Identifiable, Equatable, Codable {
         startLat = c.num(.startLat); startLng = c.num(.startLng)
         endLat = c.num(.endLat); endLng = c.num(.endLng)
         gKey = c.str(.gKey)
+        parking = max(0, c.num(.parking) ?? 0)
+        vehicleId = c.str(.vehicleId) ?? ""
+    }
+}
+
+/// Odometer readings for one tax year.
+struct YearOdo: Codable, Equatable, Hashable {
+    var start: Double? = nil
+    var end: Double? = nil
+}
+
+/// A vehicle used for business. Odometer readings by year feed Schedule C, Part IV in the tax report.
+struct Vehicle: Codable, Equatable, Hashable, Identifiable {
+    var id: String
+    var name: String
+    var inService: String = ""               // yyyy-MM-dd first used for business
+    var odometer: [String: YearOdo] = [:]    // keyed by year, like "2026"
+
+    init(id: String, name: String, inService: String = "", odometer: [String: YearOdo] = [:]) {
+        self.id = id; self.name = name; self.inService = inService; self.odometer = odometer
+    }
+
+    enum CodingKeys: String, CodingKey { case id, name, inService, odometer }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = c.str(.id) ?? ""
+        name = c.str(.name) ?? "Vehicle"
+        inService = c.str(.inService) ?? ""
+        odometer = (try? c.decodeIfPresent([String: YearOdo].self, forKey: .odometer)) ?? [:]
     }
 }
 
@@ -90,10 +122,14 @@ struct AppSettings: Codable, Equatable {
     var homeAddress: String = ""
     var workAddress: String = ""
     var introDismissed: Bool = false
+    var vehicles: [Vehicle] = []
+    var reportName: String = ""              // name or business printed on the tax report
 
     init() {}
 
-    enum CodingKeys: String, CodingKey { case rates, ratePeriods, places, autoDetect, minAutoMiles, homeAddress, workAddress, introDismissed }
+    enum CodingKeys: String, CodingKey {
+        case rates, ratePeriods, places, autoDetect, minAutoMiles, homeAddress, workAddress, introDismissed, vehicles, reportName
+    }
 
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -106,6 +142,8 @@ struct AppSettings: Codable, Equatable {
         homeAddress = c.str(.homeAddress) ?? ""
         workAddress = c.str(.workAddress) ?? ""
         introDismissed = c.bool(.introDismissed) ?? false
+        vehicles = ((try? c.decodeIfPresent([Vehicle].self, forKey: .vehicles)) ?? nil)?.filter { !$0.id.isEmpty } ?? []
+        reportName = c.str(.reportName) ?? ""
     }
 }
 

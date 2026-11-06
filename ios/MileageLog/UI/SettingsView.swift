@@ -20,12 +20,16 @@ struct SettingsView: View {
     @State private var exporting = false
     @State private var importing = false
     @State private var message: String?
+    @State private var pdfDoc: PDFFile?
+    @State private var pdfExporting = false
+    @State private var reportName = ""
 
     var body: some View {
         NavigationStack {
             List {
                 autoDetectSection
                 HomeWorkSection()
+                VehiclesSection(year: year)
                 ratesSection
                 exportSection
                 if !store.data.settings.places.isEmpty { placesSection }
@@ -156,6 +160,22 @@ struct SettingsView: View {
     private var exportSection: some View {
         let count = store.data.trips.filter { $0.status == TripStatus.logged && $0.year == year }.count
         return Section {
+            Button {
+                pdfDoc = PDFFile(data: ReportPDF.make(year: year, store: store))
+                pdfExporting = true
+            } label: {
+                Label("\(String(year)) tax report (PDF)", systemImage: "doc.richtext").fontWeight(.bold)
+            }
+            .disabled(count == 0)
+            TextField("Name or business on the report (optional)", text: $reportName)
+                .textInputAutocapitalization(.words)
+                .onChange(of: reportName) { _, v in
+                    var st = store.data.settings
+                    guard st.reportName != v else { return }
+                    st.reportName = v
+                    store.setSettings(st)
+                }
+                .onAppear { reportName = store.data.settings.reportName }
             Button("Export \(String(year)) CSV (\(count) trips)") {
                 exportDoc = TextFile(text: Exports.csv(year: year, store: store), type: .commaSeparatedText)
                 exportName = "mileage-log-\(year).csv"
@@ -169,9 +189,12 @@ struct SettingsView: View {
             }
             Button("Restore from backup") { importing = true }
         } header: {
-            Text("Export and backup")
+            Text("Tax time and backup")
         } footer: {
-            Text("The CSV has date, route, purpose, miles, and the rate used for every business trip: the records the IRS asks you to keep. Trips live only on this phone; backups also restore into the Android and web apps.")
+            Text("The tax report has your totals, deduction, parking and tolls, vehicle miles for Schedule C Part IV, a monthly table, and every trip, ready for your tax preparer. The CSV is the same trips as a spreadsheet. Trips live only on this phone; backups also restore into the Android and web apps.")
+        }
+        .fileExporter(isPresented: $pdfExporting, document: pdfDoc, contentType: .pdf, defaultFilename: "mileage-report-\(year).pdf") { result in
+            if case .success = result { message = "Tax report saved" }
         }
     }
 
@@ -194,6 +217,116 @@ struct SettingsView: View {
         let v = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
         let b = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
         return "\(v) (\(b))"
+    }
+}
+
+struct VehiclesSection: View {
+    @EnvironmentObject private var store: Store
+    let year: Int
+    @State private var editing: Vehicle?
+
+    var body: some View {
+        Section {
+            ForEach(store.data.settings.vehicles) { v in
+                Button { editing = v } label: {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(v.name).font(Fonts.body()).foregroundStyle(Palette.ink)
+                        Text(odoLine(v)).font(Fonts.body(13)).foregroundStyle(Palette.muted)
+                    }
+                }
+            }
+            Button(store.data.settings.vehicles.isEmpty ? "Add your vehicle" : "Add another vehicle") {
+                editing = Vehicle(id: Store.newVehicleId(), name: "")
+            }
+        } header: {
+            Text("Vehicles")
+        } footer: {
+            Text("Odometer readings at the start and end of the year give the total miles Schedule C asks for. With more than one vehicle, pick one on each trip.")
+        }
+        .sheet(item: $editing) { v in
+            VehicleEditor(vehicle: v, year: year, isNew: !store.data.settings.vehicles.contains { $0.id == v.id }).environmentObject(store)
+        }
+    }
+
+    private func odoLine(_ v: Vehicle) -> String {
+        let o = v.odometer[String(year)]
+        if let a = o?.start, let b = o?.end { return "\(year) odometer \(Int(a).formatted()) to \(Int(b).formatted())" }
+        if let a = o?.start { return "\(year) odometer starts at \(Int(a).formatted())" }
+        return "No \(year) odometer readings yet"
+    }
+}
+
+struct VehicleEditor: View {
+    @EnvironmentObject private var store: Store
+    @Environment(\.dismiss) private var dismiss
+    let vehicle: Vehicle
+    let year: Int
+    let isNew: Bool
+
+    @State private var name = ""
+    @State private var hasInService = false
+    @State private var inService = Date()
+    @State private var start = ""
+    @State private var end = ""
+    @State private var error: String?
+    @State private var confirmDelete = false
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    TextField("Name, like 2022 Ford F-150", text: $name).textInputAutocapitalization(.words)
+                }
+                Section {
+                    Toggle("Date first used for business", isOn: $hasInService)
+                    if hasInService { DatePicker("Date", selection: $inService, displayedComponents: .date) }
+                }
+                Section {
+                    TextField("Jan 1 reading", text: $start).keyboardType(.numberPad)
+                    TextField("Dec 31 reading", text: $end).keyboardType(.numberPad)
+                } header: {
+                    Text("\(String(year)) odometer")
+                } footer: {
+                    Text("Use the first reading of the year (or when you started using it) and the last. Leave the end blank until the year is over.")
+                }
+                if let error { Text(error).foregroundStyle(Palette.danger) }
+                if !isNew {
+                    Button("Remove this vehicle", role: .destructive) { confirmDelete = true }
+                }
+            }
+            .navigationTitle(isNew ? "Add vehicle" : "Edit vehicle")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
+                ToolbarItem(placement: .confirmationAction) { Button("Save") { save() }.fontWeight(.bold) }
+            }
+            .confirmationDialog("Remove \(vehicle.name)?", isPresented: $confirmDelete, titleVisibility: .visible) {
+                Button("Remove", role: .destructive) { store.deleteVehicle(vehicle.id); dismiss() }
+            } message: {
+                Text("Its trips stay in your log and move to your first vehicle.")
+            }
+            .onAppear {
+                name = vehicle.name
+                if let d = Store.dayFormatter.date(from: vehicle.inService) { hasInService = true; inService = d }
+                let o = vehicle.odometer[String(year)]
+                start = o?.start.map { String(Int($0)) } ?? ""
+                end = o?.end.map { String(Int($0)) } ?? ""
+            }
+        }
+    }
+
+    private func save() {
+        let num = { (t: String) -> Double? in Double(t.replacingOccurrences(of: ",", with: "").trimmingCharacters(in: .whitespaces)) }
+        let a = num(start), b = num(end)
+        if name.trimmingCharacters(in: .whitespaces).isEmpty { error = "Give the vehicle a name."; return }
+        if (!start.isEmpty && a == nil) || (!end.isEmpty && b == nil) { error = "Enter odometer readings as numbers."; return }
+        if let a, let b, b < a { error = "The Dec 31 reading should be higher than Jan 1."; return }
+        var v = vehicle
+        v.name = name.trimmingCharacters(in: .whitespaces)
+        v.inService = hasInService ? Store.dayFormatter.string(from: inService) : ""
+        if a == nil && b == nil { v.odometer.removeValue(forKey: String(year)) } else { v.odometer[String(year)] = YearOdo(start: a, end: b) }
+        store.saveVehicle(v)
+        dismiss()
     }
 }
 

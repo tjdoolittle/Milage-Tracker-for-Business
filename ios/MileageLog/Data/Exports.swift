@@ -12,19 +12,20 @@ enum Exports {
         let trips = store.data.trips
             .filter { $0.status == TripStatus.logged && $0.year == year }
             .sorted { ($0.date, $0.startTime ?? $0.createdAt) < ($1.date, $1.startTime ?? $1.createdAt) }
-        var rows: [[String]] = [["Date", "From", "To", "Business purpose", "Client", "Odometer start", "Odometer end",
-                                 "Round trip", "Miles", "Rate per mile", "Deduction", "Notes", "Source"]]
-        var total = 0.0, totalDed = 0.0
+        var rows: [[String]] = [["Date", "From", "To", "Business purpose", "Client", "Vehicle", "Odometer start", "Odometer end",
+                                 "Round trip", "Miles", "Rate per mile", "Deduction", "Parking and tolls", "Notes", "Source"]]
+        var total = 0.0, totalDed = 0.0, totalParking = 0.0
         for t in trips {
             let rate = store.rateOn(t.date)
             let ded = (t.miles * rate * 100).rounded() / 100
-            total += t.miles; totalDed += ded
-            rows.append([t.date, t.from, t.to, t.purpose, t.client,
+            total += t.miles; totalDed += ded; totalParking += t.parking
+            rows.append([t.date, t.from, t.to, t.purpose, t.client, store.vehicle(for: t)?.name ?? "",
                          t.odoStart.map { String(format: "%.1f", $0) } ?? "", t.odoEnd.map { String(format: "%.1f", $0) } ?? "",
                          t.roundTrip ? "Yes" : "", String(format: "%.1f", t.miles), String(format: "%.3f", rate),
-                         String(format: "%.2f", ded), t.notes, t.source ?? "Manual"])
+                         String(format: "%.2f", ded), t.parking > 0 ? String(format: "%.2f", t.parking) : "", t.notes, t.source ?? "Manual"])
         }
-        rows.append(["Total", "", "", "", "", "", "", "", String(format: "%.1f", total), "", String(format: "%.2f", totalDed), "", ""])
+        rows.append(["Total", "", "", "", "", "", "", "", "", String(format: "%.1f", total), "", String(format: "%.2f", totalDed),
+                     String(format: "%.2f", totalParking), "", ""])
         return rows.map { $0.map(q).joined(separator: ",") }.joined(separator: "\n")
     }
 
@@ -59,10 +60,21 @@ enum Exports {
                 }
                 d.settings.rates = theirs.rates.merging(d.settings.rates) { _, mine in mine }
                 if d.settings.ratePeriods == nil { d.settings.ratePeriods = theirs.ratePeriods }
+                for v in theirs.vehicles where !d.settings.vehicles.contains(where: { $0.id == v.id }) { d.settings.vehicles.append(v) }
+                if d.settings.reportName.isEmpty { d.settings.reportName = theirs.reportName }
             }
         }
         return (add.count, incoming.count - add.count)
     }
+}
+
+/// Wraps PDF bytes for SwiftUI's file exporter.
+struct PDFFile: FileDocument {
+    static var readableContentTypes: [UTType] { [.pdf] }
+    var data: Data
+    init(data: Data) { self.data = data }
+    init(configuration: ReadConfiguration) throws { data = configuration.file.regularFileContents ?? Data() }
+    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper { FileWrapper(regularFileWithContents: data) }
 }
 
 /// Wraps text for SwiftUI's file exporter.
