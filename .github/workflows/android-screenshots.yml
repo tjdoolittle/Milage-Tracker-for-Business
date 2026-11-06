@@ -12,6 +12,10 @@ on:
       - "android/**"
       - "!android/store-listing/**"
       - ".github/workflows/android-screenshots.yml"
+  pull_request:
+    paths:
+      - "android/**"
+      - "!android/store-listing/**"
 
 concurrency:
   group: android-shots
@@ -71,4 +75,4 @@ jobs:
           cp -r /tmp/out/. .
           git add -A
           git commit -qm "Android screenshots for run ${{ github.run_number }}"
-          git push -fq origin HEAD:ci-android-shots
+          git push -fq origin HEAD:${{ github.event_name == 'pull_request' && 'ci-android-shots-pr' || 'ci-android-shots' }}

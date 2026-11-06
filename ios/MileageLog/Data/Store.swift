@@ -150,6 +150,32 @@ final class Store: ObservableObject {
 
     var isCustomSchedule: Bool { data.settings.ratePeriods != nil || !data.settings.rates.isEmpty }
 
+    // MARK: Vehicles
+
+    /// The vehicle a trip counts toward: its own, or the first one when it has none.
+    func vehicle(for t: Trip) -> Vehicle? {
+        data.settings.vehicles.first { $0.id == t.vehicleId } ?? data.settings.vehicles.first
+    }
+
+    func saveVehicle(_ v: Vehicle) {
+        update { d in
+            if let i = d.settings.vehicles.firstIndex(where: { $0.id == v.id }) { d.settings.vehicles[i] = v }
+            else { d.settings.vehicles.append(v) }
+        }
+    }
+
+    /// Removes a vehicle. Its trips move to the first remaining vehicle.
+    func deleteVehicle(_ id: String) {
+        update { d in
+            d.settings.vehicles.removeAll { $0.id == id }
+            for i in d.trips.indices where d.trips[i].vehicleId == id { d.trips[i].vehicleId = "" }
+        }
+    }
+
+    static func newVehicleId() -> String {
+        "v-" + UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased().prefix(8)
+    }
+
     // MARK: Dates and ids
 
     static func newId() -> String {

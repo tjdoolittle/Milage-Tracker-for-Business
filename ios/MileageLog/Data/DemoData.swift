@@ -15,6 +15,12 @@ enum DemoData {
         d.settings.places = places
         d.settings.autoDetect = true
         d.settings.introDismissed = true   // keep store screenshots on the main content
+        d.settings.reportName = "Hartley AV Installs"
+        let yr = String(Calendar(identifier: .gregorian).component(.year, from: Date()))
+        d.settings.vehicles = [
+            Vehicle(id: "v-van", name: "2022 Ford Transit", inService: "2022-03-14", odometer: [yr: YearOdo(start: 41_250, end: nil)]),
+            Vehicle(id: "v-car", name: "2019 Honda Accord", inService: "2019-08-02", odometer: [yr: YearOdo(start: 68_910, end: 79_420)]),
+        ]
         let jobs: [(String, String, Int, Double)] = [
             ("Theater install", "Hartwell residence", 1, 12.6),
             ("Control4 programming", "Peachtree Dental", 2, 4.8),
@@ -38,6 +44,8 @@ enum DemoData {
                 t.roundTrip = round
                 t.source = rng.next() < 0.5 ? "Auto GPS" : nil
                 t.createdAt = Double(n)
+                if rng.next() < 0.2 { t.parking = [6.0, 12.5, 3.75, 8.0][Int(rng.next() * 4) % 4] }
+                t.vehicleId = rng.next() < 0.8 ? "v-van" : "v-car"
                 d.trips.append(t)
                 n += 1
             }

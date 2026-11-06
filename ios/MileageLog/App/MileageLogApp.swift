@@ -59,6 +59,12 @@ final class Router: ObservableObject {
     private init() {
         // Screenshot mode can open a screen directly: -screen settings | editor
         let args = ProcessInfo.processInfo.arguments
+        // Screenshot job: write a sample tax report from the demo data into Documents.
+        if Store.shared.demo && args.contains("-pdf") {
+            let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("sample-report.pdf")
+            let year = Calendar(identifier: .gregorian).component(.year, from: Date())
+            try? ReportPDF.make(year: year).write(to: url)
+        }
         if let i = args.firstIndex(of: "-screen"), i + 1 < args.count {
             switch args[i + 1] {
             case "settings": showSettings = true
