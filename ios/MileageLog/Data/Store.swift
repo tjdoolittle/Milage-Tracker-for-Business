@@ -116,11 +116,36 @@ final class Store: ObservableObject {
     /// The rate schedule in effect, oldest first.
     func schedule(_ s: AppSettings? = nil) -> [RatePeriod] {
         let s = s ?? data.settings
-        if let custom = s.ratePeriods, !custom.isEmpty { return custom.sorted { $0.from < $1.from } }
+        if let custom = s.ratePeriods, !custom.isEmpty {
+            // Still pick up IRS rates that start after the user's last entry, so a rate added
+            // in an app update reaches everyone who hasn't entered it themselves.
+            let last = custom.map(\.from).max() ?? ""
+            return (custom + Store.irsRates.filter { $0.from > last }).sorted { $0.from < $1.from }
+        }
         let overridden = Set(s.rates.keys)
         let base = Store.irsRates.filter { !overridden.contains(String($0.from.prefix(4))) }
         let legacy = s.rates.compactMap { (y, r) -> RatePeriod? in Int(y) != nil ? RatePeriod(from: "\(y)-01-01", rate: r) : nil }
         return (base + legacy).sorted { $0.from < $1.from }
+    }
+
+    /// True when the schedule has a rate that starts in `year` (built in or entered by the user).
+    func hasRate(for year: Int) -> Bool { schedule().contains { $0.from.hasPrefix("\(year)-") } }
+
+    /// Plain-English summary of the built-in IRS rates for a year, or nil when this version doesn't have them.
+    static func irsSummary(_ year: Int) -> String? {
+        let ps = irsRates.filter { $0.from.hasPrefix("\(year)-") }
+        if ps.isEmpty { return nil }
+        func c(_ r: Double) -> String { let v = (r * 1000).rounded() / 10; return v == v.rounded() ? "\(Int(v))¢" : "\(v)¢" }
+        if ps.count == 1 { return "\(c(ps[0].rate)) per mile for all of \(year)" }
+        let f = DateFormatter(); f.locale = Locale(identifier: "en_US"); f.dateFormat = "MMMM d"
+        let cal = Calendar(identifier: .gregorian)
+        return ps.enumerated().map { i, p in
+            let start = dayFormatter.date(from: p.from) ?? Date()
+            let end: Date = i + 1 < ps.count
+                ? cal.date(byAdding: .day, value: -1, to: dayFormatter.date(from: ps[i + 1].from) ?? Date()) ?? Date()
+                : dayFormatter.date(from: "\(year)-12-31") ?? Date()
+            return "\(c(p.rate)) from \(f.string(from: start)) through \(f.string(from: end))"
+        }.joined(separator: ", then ")
     }
 
     /// The rate for a trip on `date`: the latest rate that started on or before it.

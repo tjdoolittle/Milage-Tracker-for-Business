@@ -350,7 +350,17 @@ private fun RatesCard(s: com.tjdoolittle.mileagelog.data.Settings) {
                 }) { Text("Use IRS rates", style = Type.bodyBold, color = p.signText) }
             }
         }
-        Text("IRS business rate for 2026: 72.5¢ through June 30, then 76¢ from July 1 through December 31.", style = Type.small, color = p.muted)
+        val thisYear = java.time.LocalDate.now().year
+        val irs = Store.irsSummary(thisYear)
+        if (irs != null) {
+            Text("IRS business rate for $thisYear: $irs.", style = Type.small, color = p.muted)
+        } else if (!Store.hasRateFor(thisYear, s)) {
+            Text("The IRS rate for $thisYear isn't in this version of the app yet (the IRS usually announces it in December). " +
+                "Trips keep using ${fmtCents(Store.rateOn(Store.today(), s))}¢ until you tap Add rate change and enter the new rate starting January 1, " +
+                "or until an app update adds it.",
+                style = Type.small, color = p.ink,
+                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(p.amberBg).padding(10.dp))
+        }
         Text("Source: IRS standard mileage rates (irs.gov)", style = Type.bodyBold, color = p.signText,
             modifier = Modifier.fillMaxWidth().clickable {
                 runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Store.IRS_SOURCE_URL))) }

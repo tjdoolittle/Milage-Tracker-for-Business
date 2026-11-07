@@ -128,6 +128,14 @@ struct SettingsView: View {
         }
     }
 
+    private var rateNote: String {
+        let y = Calendar(identifier: .gregorian).component(.year, from: Date())
+        if let irs = Store.irsSummary(y) { return "IRS business rate for \(y): \(irs). " }
+        if store.hasRate(for: y) { return "" }
+        let now = String(format: "%g", (store.rateOn(Store.today()) * 1000).rounded() / 10)
+        return "The IRS rate for \(y) isn't in this version of the app yet (the IRS usually announces it in December). Trips keep using \(now)¢ until you tap Add rate change and enter the new rate starting January 1, or until an app update adds it. "
+    }
+
     private var ratesSection: some View {
         let sch = store.schedule()
         return Section {
@@ -153,7 +161,7 @@ struct SettingsView: View {
         } header: {
             Text("Mileage rates")
         } footer: {
-            Text("Each rate applies from its start date until the next one starts, and every trip uses the rate in effect on the day it was driven. IRS business rate for 2026: 72.5¢ through June 30, then 76¢ from July 1 through December 31. " + Store.govDisclaimer)
+            Text("Each rate applies from its start date until the next one starts, and every trip uses the rate in effect on the day it was driven. " + rateNote + Store.govDisclaimer)
         }
     }
 

@@ -71,7 +71,12 @@ object Store {
 
     /** The rate schedule in effect, oldest first. */
     fun schedule(s: Settings = data.settings): List<RatePeriod> {
-        val list = s.ratePeriods ?: (
+        // A custom schedule still picks up IRS rates that start after the user's last entry,
+        // so a rate added in an app update reaches everyone who hasn't entered it themselves.
+        val list = s.ratePeriods?.let { mine ->
+            val last = mine.maxOfOrNull { it.from } ?: ""
+            mine + IRS_RATES.filter { it.from > last }
+        } ?: (
             IRS_RATES.filter { p -> s.rates[p.from.take(4).toInt()] == null } +
                 s.rates.map { (y, r) -> RatePeriod("%04d-01-01".format(Locale.US, y), r) }
             )
@@ -83,6 +88,23 @@ object Store {
         val sch = schedule(s)
         if (sch.isEmpty()) return 0.725
         return sch.lastOrNull { it.from <= date }?.rate ?: sch.first().rate
+    }
+
+    /** True when the schedule has a rate that starts in `year` (built in or entered by the user). */
+    fun hasRateFor(year: Int, s: Settings = data.settings): Boolean = schedule(s).any { it.from.startsWith("$year-") }
+
+    /** Plain-English summary of the built-in IRS rates for a year, or null when this version doesn't have them. */
+    fun irsSummary(year: Int): String? {
+        val ps = IRS_RATES.filter { it.from.startsWith("$year-") }
+        if (ps.isEmpty()) return null
+        fun c(r: Double) = (Math.round(r * 1000) / 10.0).let { if (it == Math.floor(it)) "${it.toInt()}¢" else "$it¢" }
+        if (ps.size == 1) return "${c(ps[0].rate)} per mile for all of $year"
+        val fmt = java.time.format.DateTimeFormatter.ofPattern("MMMM d", Locale.US)
+        return ps.mapIndexed { i, p ->
+            val start = java.time.LocalDate.parse(p.from)
+            val end = ps.getOrNull(i + 1)?.let { java.time.LocalDate.parse(it.from).minusDays(1) } ?: java.time.LocalDate.of(year, 12, 31)
+            "${c(p.rate)} from ${start.format(fmt)} through ${end.format(fmt)}"
+        }.joinToString(", then ")
     }
 
     fun deduction(t: Trip, s: Settings = data.settings): Double = t.miles * rateOn(t.date, s)
