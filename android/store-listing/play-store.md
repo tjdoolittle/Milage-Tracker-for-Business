@@ -69,7 +69,12 @@ YOUR YEAR AT A GLANCE
 A highway-sign odometer shows the year's business miles, your deduction, this month's miles, and a month-by-month chart. Tap the year to look back at earlier tax years.
 
 READY FOR TAX TIME
-Export any year as a spreadsheet (CSV) with the date, route, purpose, miles, rate, and deduction for every trip, plus totals. Save a backup to Google Drive or Files and restore it on a new phone.
+Make a PDF tax report for any year: your business miles, mileage deduction, parking and tolls, the vehicle numbers Schedule C asks for (total, business, commuting, and other miles), a month-by-month table, and every trip. Hand it to your tax preparer as is. Or export a spreadsheet (CSV) of the same trips.
+
+PARKING, TOLLS, AND VEHICLES
+Add parking fees and tolls to any trip; they're deductible on top of the mileage rate. Track more than one vehicle and enter each one's odometer readings for the year.
+
+Save a backup to Google Drive or Files and restore it on a new phone.
 
 PRIVATE BY DESIGN
 No account, no ads, no tracking. Your trips and location stay on your phone unless you export them.

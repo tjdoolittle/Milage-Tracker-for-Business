@@ -21,6 +21,8 @@ struct TripEditorView: View {
     @State private var purposeOther = ""
     @State private var client = ""
     @State private var notes = ""
+    @State private var parking = ""
+    @State private var vehicleId = ""
     @State private var error: String?
     @State private var confirmDelete = false
     @State private var loaded = false
@@ -123,6 +125,23 @@ struct TripEditorView: View {
                     Text("The IRS asks for a business purpose on every trip.")
                 }
 
+                Section {
+                    HStack {
+                        Text("Parking and tolls")
+                        Spacer()
+                        TextField("$0.00", text: $parking).keyboardType(.decimalPad).multilineTextAlignment(.trailing).frame(maxWidth: 120)
+                    }
+                    if store.data.settings.vehicles.count > 1 {
+                        Picker("Vehicle", selection: $vehicleId) {
+                            ForEach(store.data.settings.vehicles) { Text($0.name).tag($0.id) }
+                        }
+                    }
+                } header: {
+                    Text("Costs and vehicle")
+                } footer: {
+                    Text("Parking fees and tolls for business trips are deductible on top of the mileage rate.")
+                }
+
                 if let error {
                     Section { Text(error).font(Fonts.bodyBold()).foregroundStyle(Palette.danger) }
                 }
@@ -167,6 +186,8 @@ struct TripEditorView: View {
         odo1 = t.odoStart.map(fmt) ?? ""
         odo2 = t.odoEnd.map(fmt) ?? ""
         from = t.from; to = t.to; client = t.client; notes = t.notes
+        parking = t.parking > 0 ? String(format: "%.2f", t.parking) : ""
+        vehicleId = store.vehicle(for: t)?.id ?? ""
         if t.purpose.isEmpty { purposeChoice = "" }
         else if Store.purposes.contains(t.purpose) { purposeChoice = t.purpose }
         else { purposeChoice = Store.otherPurpose; purposeOther = t.purpose }
@@ -196,6 +217,8 @@ struct TripEditorView: View {
         t.odoStart = odoMode ? num(odo1) : nil
         t.odoEnd = odoMode ? num(odo2) : nil
         t.status = status
+        t.parking = num(parking.replacingOccurrences(of: "$", with: "")).map { max(0, ($0 * 100).rounded() / 100) } ?? 0
+        t.vehicleId = vehicleId
         store.saveTrip(t)
         if status == TripStatus.logged {
             store.learnPlace(t.from, lat: original.startLat, lng: original.startLng)

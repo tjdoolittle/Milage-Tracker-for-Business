@@ -41,6 +41,8 @@ object DemoData {
                     id = "demo-$n", date = day.toString(), miles = if (round) j.miles * 2 else j.miles,
                     purpose = j.purpose, client = j.client, from = "Shop", to = places[j.place].name,
                     roundTrip = round, source = if (rng.nextDouble() < 0.5) "Auto GPS" else null, createdAt = n.toLong(),
+                    parking = if (rng.nextDouble() < 0.2) listOf(6.0, 12.5, 3.75, 8.0)[rng.nextInt(4)] else 0.0,
+                    vehicleId = if (rng.nextDouble() < 0.8) "v-van" else "v-car",
                 )
                 n++
             }
@@ -63,7 +65,13 @@ object DemoData {
         ) else null
         return AppData(
             trips = trips,
-            settings = Settings(places = places, autoDetect = true, introDismissed = true),
+            settings = Settings(
+                places = places, autoDetect = true, introDismissed = true, reportName = "Hartley AV Installs",
+                vehicles = listOf(
+                    Vehicle("v-van", "2022 Ford Transit", "2022-03-14", mapOf(today.year to YearOdo(41_250.0, null))),
+                    Vehicle("v-car", "2019 Honda Accord", "2019-08-02", mapOf(today.year to YearOdo(68_910.0, 79_420.0))),
+                ),
+            ),
             active = activeTrip,
         )
     }

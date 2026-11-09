@@ -58,6 +58,9 @@ import com.tjdoolittle.mileagelog.data.AppData
 import com.tjdoolittle.mileagelog.data.Exports
 import com.tjdoolittle.mileagelog.data.Geo
 import com.tjdoolittle.mileagelog.data.RatePeriod
+import com.tjdoolittle.mileagelog.data.ReportPdf
+import com.tjdoolittle.mileagelog.data.Vehicle
+import com.tjdoolittle.mileagelog.data.YearOdo
 import com.tjdoolittle.mileagelog.data.Status
 import com.tjdoolittle.mileagelog.data.Store
 import com.tjdoolittle.mileagelog.tracking.DriveDetector
@@ -91,6 +94,12 @@ fun SettingsScreen(data: AppData, year: Int, resumeTick: Int, onClose: () -> Uni
     }
     val csvOut = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri ->
         uri?.let { write(ctx, it, Exports.csv(year)); toast(ctx, "CSV saved") }
+    }
+    val pdfOut = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/pdf")) { uri ->
+        uri?.let {
+            runCatching { ctx.contentResolver.openOutputStream(it)?.use { o -> ReportPdf.write(o, year) } }
+                .onSuccess { toast(ctx, "Tax report saved") }.onFailure { toast(ctx, "Couldn't save the report.") }
+        }
     }
     val backupOut = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
         uri?.let { write(ctx, it, Exports.backup()); toast(ctx, "Backup saved") }
@@ -170,15 +179,23 @@ fun SettingsScreen(data: AppData, year: Int, resumeTick: Int, onClose: () -> Uni
                     style = Type.small, color = p.muted)
             }
 
+            // ---- Vehicles ----
+            VehiclesCard(s, year)
+
             // ---- Rates ----
             RatesCard(s)
 
             // ---- Export & backup ----
             Card {
                 val count = data.trips.count { it.status == Status.LOGGED && it.year == year }
-                Text("Export and backup", style = Type.bodyBold, color = p.ink)
-                BigButton("Export $year CSV ($count trips)", Modifier.fillMaxWidth(), enabled = count > 0) { csvOut.launch("mileage-log-$year.csv") }
-                Text("Includes date, route, purpose, and miles for every business trip: the records the IRS asks you to keep.", style = Type.small, color = p.muted)
+                Text("Tax time", style = Type.bodyBold, color = p.ink)
+                BigButton("$year tax report (PDF)", Modifier.fillMaxWidth(), enabled = count > 0) { pdfOut.launch("mileage-report-$year.pdf") }
+                Text("Totals, deduction, parking and tolls, vehicle miles for Schedule C Part IV, a monthly table, and every trip. Ready to hand to your tax preparer.",
+                    style = Type.small, color = p.muted)
+                ReportNameField(s.reportName)
+                BigButton("Export $year CSV ($count trips)", Modifier.fillMaxWidth(), kind = "outline", enabled = count > 0) { csvOut.launch("mileage-log-$year.csv") }
+                Text("A spreadsheet with date, route, purpose, vehicle, miles, and parking and tolls for every business trip.", style = Type.small, color = p.muted)
+                Box(Modifier.fillMaxWidth().height(1.dp).background(p.line))
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     BigButton("Save backup", Modifier.weight(1f), kind = "outline") { backupOut.launch("mileage-log-backup-${Store.today()}.json") }
                     BigButton("Restore", Modifier.weight(1f), kind = "outline") { restoreIn.launch(arrayOf("application/json", "*/*")) }
@@ -333,7 +350,17 @@ private fun RatesCard(s: com.tjdoolittle.mileagelog.data.Settings) {
                 }) { Text("Use IRS rates", style = Type.bodyBold, color = p.signText) }
             }
         }
-        Text("IRS business rate for 2026: 72.5¢ through June 30, then 76¢ from July 1 through December 31.", style = Type.small, color = p.muted)
+        val thisYear = java.time.LocalDate.now().year
+        val irs = Store.irsSummary(thisYear)
+        if (irs != null) {
+            Text("IRS business rate for $thisYear: $irs.", style = Type.small, color = p.muted)
+        } else if (!Store.hasRateFor(thisYear, s)) {
+            Text("The IRS rate for $thisYear isn't in this version of the app yet (the IRS usually announces it in December). " +
+                "Trips keep using ${fmtCents(Store.rateOn(Store.today(), s))}¢ until you tap Add rate change and enter the new rate starting January 1, " +
+                "or until an app update adds it.",
+                style = Type.small, color = p.ink,
+                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(p.amberBg).padding(10.dp))
+        }
         Text("Source: IRS standard mileage rates (irs.gov)", style = Type.bodyBold, color = p.signText,
             modifier = Modifier.fillMaxWidth().clickable {
                 runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Store.IRS_SOURCE_URL))) }
@@ -394,6 +421,117 @@ private fun RateDialog(initial: RatePeriod?, canDelete: Boolean, onSave: (RatePe
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
     )
+}
+
+@Composable
+private fun ReportNameField(saved: String) {
+    var text by rememberSaveable(saved) { mutableStateOf(saved) }
+    OutlinedTextField(text, { text = it; Store.setSettings(Store.data.settings.copy(reportName = it)) }, Modifier.fillMaxWidth(),
+        label = { Text("Name or business on the report (optional)") }, singleLine = true,
+        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words))
+}
+
+@Composable
+private fun VehiclesCard(s: com.tjdoolittle.mileagelog.data.Settings, year: Int) {
+    val p = LocalPalette.current
+    val ctx = LocalContext.current
+    var editing by remember { mutableStateOf<Vehicle?>(null) }
+    Card {
+        Text("Vehicles", style = Type.bodyBold, color = p.ink)
+        Text("Odometer readings at the start and end of the year give the total miles Schedule C asks for. With more than one vehicle, pick one on each trip.",
+            style = Type.small, color = p.muted)
+        s.vehicles.forEach { v ->
+            val o = v.odometer[year]
+            val odo = if (o?.start != null && o.end != null) "$year odometer ${fmtOdo(o.start)} to ${fmtOdo(o.end)}"
+            else if (o?.start != null) "$year odometer starts at ${fmtOdo(o.start)}" else "No $year odometer readings yet"
+            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).clickable { editing = v }.padding(vertical = 8.dp, horizontal = 4.dp)) {
+                Text(v.name, style = Type.body, color = p.ink)
+                Text(odo, style = Type.small, color = p.muted)
+            }
+            Box(Modifier.fillMaxWidth().height(1.dp).background(p.line))
+        }
+        BigButton(if (s.vehicles.isEmpty()) "Add your vehicle" else "Add another vehicle", Modifier.fillMaxWidth(), kind = "outline") {
+            editing = Vehicle(Store.newVehicleId(), "")
+        }
+    }
+    editing?.let { v ->
+        VehicleDialog(v, year, isNew = s.vehicles.none { it.id == v.id }, canDelete = s.vehicles.any { it.id == v.id },
+            onSave = { Store.saveVehicle(it); editing = null; toast(ctx, "Vehicle saved") },
+            onDelete = { Store.deleteVehicle(v.id); editing = null },
+            onDismiss = { editing = null })
+    }
+}
+
+private fun fmtOdo(v: Double): String = String.format(Locale.US, "%,.0f", v)
+
+@Composable
+private fun VehicleDialog(v: Vehicle, year: Int, isNew: Boolean, canDelete: Boolean,
+                          onSave: (Vehicle) -> Unit, onDelete: () -> Unit, onDismiss: () -> Unit) {
+    val p = LocalPalette.current
+    val ctx = LocalContext.current
+    val o = v.odometer[year]
+    var name by rememberSaveable { mutableStateOf(v.name) }
+    var inService by rememberSaveable { mutableStateOf(v.inService) }
+    var start by rememberSaveable { mutableStateOf(o?.start?.let { String.format(Locale.US, "%.0f", it) } ?: "") }
+    var end by rememberSaveable { mutableStateOf(o?.end?.let { String.format(Locale.US, "%.0f", it) } ?: "") }
+    var err by rememberSaveable { mutableStateOf<String?>(null) }
+    var confirm by rememberSaveable { mutableStateOf(false) }
+    fun num(t: String) = t.replace(",", "").trim().toDoubleOrNull()
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(if (isNew) "Add vehicle" else "Edit vehicle", style = Type.title, color = p.ink) },
+        text = {
+            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedTextField(name, { name = it; err = null }, label = { Text("Name, like 2022 Ford F-150") }, singleLine = true,
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words))
+                SectionLabel("First used for business")
+                Text(if (inService.isBlank()) "Choose a date" else longDate(inService), style = Type.body, color = if (inService.isBlank()) p.muted else p.ink,
+                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).border(1.5.dp, p.line, RoundedCornerShape(10.dp))
+                        .clickable {
+                            val init = inService.ifBlank { Store.today() }
+                            DatePickerDialog(ctx, { _, y, m, d -> inService = String.format(Locale.US, "%04d-%02d-%02d", y, m + 1, d) },
+                                init.take(4).toInt(), init.substring(5, 7).toInt() - 1, init.substring(8, 10).toInt()).show()
+                        }
+                        .padding(horizontal = 12.dp, vertical = 14.dp))
+                SectionLabel("$year odometer")
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    OutlinedTextField(start, { start = it; err = null }, Modifier.weight(1f), label = { Text("Jan 1") }, singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+                    OutlinedTextField(end, { end = it; err = null }, Modifier.weight(1f), label = { Text("Dec 31") }, singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+                }
+                Text("Use the first reading of the year (or when you started using it) and the last. Leave the end blank until the year is over.",
+                    style = Type.small, color = p.muted)
+                err?.let { Text(it, style = Type.small, color = p.danger) }
+                if (canDelete) TextButton(onClick = { confirm = true }) { Text("Remove this vehicle", style = Type.bodyBold, color = p.danger) }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                val a = num(start); val b = num(end)
+                when {
+                    name.isBlank() -> err = "Give the vehicle a name."
+                    start.isNotBlank() && a == null || end.isNotBlank() && b == null -> err = "Enter odometer readings as numbers."
+                    a != null && b != null && b < a -> err = "The Dec 31 reading should be higher than Jan 1."
+                    else -> {
+                        val odo = v.odometer.toMutableMap()
+                        if (a == null && b == null) odo.remove(year) else odo[year] = YearOdo(a, b)
+                        onSave(v.copy(name = name.trim(), inService = inService, odometer = odo))
+                    }
+                }
+            }) { Text("Save") }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+    )
+    if (confirm) {
+        AlertDialog(
+            onDismissRequest = { confirm = false },
+            title = { Text("Remove ${v.name}?") },
+            text = { Text("Its trips stay in your log and move to your first vehicle.") },
+            confirmButton = { TextButton(onClick = { confirm = false; onDelete() }) { Text("Remove", color = p.danger) } },
+            dismissButton = { TextButton(onClick = { confirm = false }) { Text("Keep it") } },
+        )
+    }
 }
 
 private fun write(ctx: Context, uri: Uri, text: String) {

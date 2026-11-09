@@ -132,6 +132,14 @@ class MainActivity : ComponentActivity() {
         val active = i.getBooleanExtra("active", false)
         Store.loadDemo(DemoData.make(active))
         if (active) { Tracker.live.value = Store.data.active; TrackingService.demoAccuracy(5.0) }
+        // Screenshot job: write a sample tax report the script can pull off the emulator.
+        if (i.getBooleanExtra("pdf", false)) {
+            runCatching {
+                java.io.File(getExternalFilesDir(null), "sample-report.pdf").outputStream().use {
+                    com.tjdoolittle.mileagelog.data.ReportPdf.write(it, java.util.Calendar.getInstance().get(java.util.Calendar.YEAR))
+                }
+            }.onFailure { android.util.Log.e("MileageLog", "sample report failed", it) }
+        }
         screen = when (i.getStringExtra("screen")) {
             "settings" -> Screen.Settings
             "editor" -> Store.data.trips.firstOrNull { it.status == Status.REVIEW }?.let { Screen.Editor(it, isNew = false) } ?: Screen.Home
