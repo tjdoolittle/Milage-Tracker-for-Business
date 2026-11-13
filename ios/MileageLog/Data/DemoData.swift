@@ -15,6 +15,7 @@ enum DemoData {
         d.settings.places = places
         d.settings.autoDetect = true
         d.settings.introDismissed = true   // keep store screenshots on the main content
+        d.settings.seenNews = Store.whatsNewId
         d.settings.reportName = "Hartley AV Installs"
         let yr = String(Calendar(identifier: .gregorian).component(.year, from: Date()))
         d.settings.vehicles = [

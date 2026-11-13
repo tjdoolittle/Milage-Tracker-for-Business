@@ -95,6 +95,10 @@ jobs:
           xcrun simctl ui "$udid" appearance dark
           shot 05-dark -active
           xcrun simctl ui "$udid" appearance light
+          # Extra checks (not store screenshots): walkthrough, What's new, forced dark theme.
+          shot x-walkthrough -walkthrough
+          shot x-whats-new -news
+          shot x-forced-dark -theme dark -active
           # Sample tax report written by the app from the demo data.
           xcrun simctl terminate "$udid" com.tjdoolittle.mileagelog 2>/dev/null || true
           xcrun simctl launch "$udid" com.tjdoolittle.mileagelog -demo -pdf

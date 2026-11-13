@@ -8,7 +8,7 @@ struct MileageLogApp: App {
 
     var body: some Scene {
         WindowGroup {
-            HomeView()
+            RootView()
                 .environmentObject(Store.shared)
                 .environmentObject(Tracker.shared)
                 .environmentObject(Router.shared)
@@ -64,6 +64,14 @@ final class Router: ObservableObject {
             let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("sample-report.pdf")
             let year = Calendar(identifier: .gregorian).component(.year, from: Date())
             try? ReportPDF.make(year: year).write(to: url)
+        }
+        // Screenshot job extras: show the walkthrough, the What's new card, or a forced theme.
+        if Store.shared.demo {
+            var st = Store.shared.data.settings
+            if args.contains("-walkthrough") { st.introDismissed = false }
+            if args.contains("-news") { st.seenNews = "" }
+            if let t = args.firstIndex(of: "-theme"), t + 1 < args.count { st.theme = args[t + 1] }
+            Store.shared.setSettings(st)
         }
         if let i = args.firstIndex(of: "-screen"), i + 1 < args.count {
             switch args[i + 1] {
