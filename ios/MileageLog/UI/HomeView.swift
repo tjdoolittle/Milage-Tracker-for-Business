@@ -101,7 +101,7 @@ struct HomeView: View {
         HStack(spacing: 8) {
             Text("MI").font(Fonts.sign(8)).foregroundStyle(Palette.signInk)
                 .frame(width: 22, height: 22).background(RoundedRectangle(cornerRadius: 5).fill(Palette.sign))
-            SignLabel(text: "Mileage Log", size: 15, color: Palette.ink)
+            SignLabel(text: "Tax Mileage Tracker", size: 15, color: Palette.ink)
             Spacer()
             Button { router.showSettings = true } label: {
                 Image(systemName: "gearshape").font(.system(size: 20, weight: .semibold)).foregroundStyle(Palette.ink)

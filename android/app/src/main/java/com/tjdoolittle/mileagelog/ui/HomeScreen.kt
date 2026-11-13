@@ -97,7 +97,7 @@ fun HomeScreen(
                     Box(Modifier.size(22.dp).clip(RoundedCornerShape(5.dp)).background(p.sign), contentAlignment = Alignment.Center) {
                         Text("MI", style = Type.tiny.copy(fontSize = 8.sp), color = p.signInk)
                     }
-                    Text("MILEAGE LOG", style = Type.label.copy(fontSize = 15.sp), color = p.ink, modifier = Modifier.padding(start = 8.dp).weight(1f))
+                    Text("TAX MILEAGE TRACKER", style = Type.label.copy(fontSize = 15.sp), color = p.ink, modifier = Modifier.padding(start = 8.dp).weight(1f))
                     IconButton(onClick = onSettings) { Icon(Icons.Filled.Settings, contentDescription = "Settings and export", tint = p.ink) }
                 }
             }

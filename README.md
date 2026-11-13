@@ -1,4 +1,4 @@
-# Mileage Log
+# Tax Mileage Tracker
 
 A business mileage tracker for Android and iPhone. It measures your drives with
 GPS, even with the screen off and the phone in your pocket, can notice drives

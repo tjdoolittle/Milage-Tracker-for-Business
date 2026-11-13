@@ -1,8 +1,8 @@
-# Getting Mileage Log onto your iPhone (TestFlight)
+# Getting Tax Mileage Tracker onto your iPhone (TestFlight)
 
 GitHub's Mac machines build and sign the app, so you never need a Mac. You
 already did the hard part for Verse & Advocate: the Apple Developer account,
-the distribution certificate, and the App Store Connect API key. Mileage Log
+the distribution certificate, and the App Store Connect API key. Tax Mileage Tracker
 reuses all three. It only needs its own App ID, provisioning profile, and app
 record, which takes about 10 minutes on Apple's websites.
 
@@ -30,7 +30,7 @@ allows only three.
 ## 1. Register the App ID
 
 [Identifiers](https://developer.apple.com/account/resources/identifiers/list) →
-**+** → **App IDs** → **App** → Description `Mileage Log`, Bundle ID
+**+** → **App IDs** → **App** → Description `Tax Mileage Tracker`, Bundle ID
 **explicit** `com.tjdoolittle.mileagelog`. Leave every capability unchecked.
 Background location and motion don't need one.
 
@@ -39,7 +39,7 @@ Background location and motion don't need one.
 [Profiles](https://developer.apple.com/account/resources/profiles/list) → **+** →
 **App Store Connect** (under Distribution) → pick `com.tjdoolittle.mileagelog`
 → pick your existing **Apple Distribution** certificate (the same one Verse &
-Advocate uses) → name it `Mileage Log App Store` → download the
+Advocate uses) → name it `Tax Mileage Tracker App Store` → download the
 `.mobileprovision`.
 
 Profiles expire after a year. If a release fails on signing next fall, make a
@@ -48,9 +48,9 @@ new one here and update the secret.
 ## 3. Create the app record
 
 [App Store Connect](https://appstoreconnect.apple.com/apps) → **Apps** → **+**
-→ **New App**: platform iOS, name `Mileage Log` (if it's taken, try
-`Mileage Log by Prestige AV` or similar; the home-screen name stays
-"Mileage Log"), language English (U.S.), bundle ID `com.tjdoolittle.mileagelog`,
+→ **New App**: platform iOS, name `Tax Mileage Tracker` (if it's taken, try
+`Tax Mileage Tracker by Prestige AV` or similar; the home-screen name stays
+"Tax Mileage Tracker"), language English (U.S.), bundle ID `com.tjdoolittle.mileagelog`,
 SKU `mileagelog`, full access.
 
 Then **App Information** → copy the **Apple ID** (a 10-digit number). That's
@@ -95,7 +95,7 @@ minutes.
 2. If the build shows **Missing Compliance**, answer **None of the algorithms
    mentioned above** (the app sets this automatically, so you usually won't see it).
 3. Install the **TestFlight** app from the App Store, open the invite email, and
-   install Mileage Log.
+   install Tax Mileage Tracker.
 
 Each new release shows up in TestFlight as an update. Your trips stay put.
 

@@ -1,4 +1,4 @@
-# Google Play: Mileage Log
+# Google Play: Tax Mileage Tracker
 
 Everything Play Console asks for, in the order you'll meet it. Character limits
 are Google's; every field here fits.
@@ -127,7 +127,7 @@ off). Each needs a **short video** (30 to 90 seconds) uploaded to YouTube as
 
 ### Video shot list (record on your phone's screen recorder)
 
-1. Open Mileage Log, tap the **gear**, turn on **Automatic drive detection**.
+1. Open Tax Mileage Tracker, tap the **gear**, turn on **Automatic drive detection**.
 2. The **"Location for automatic trips"** explanation appears. Pause on it for
    a second so the text is readable, then tap **Continue**.
 3. Android asks for location: choose **While using the app**. Then, from the
@@ -153,7 +153,7 @@ One video covering all five steps works for both forms.
   Drives start while the app is closed and the phone is put away. Without background access the app can't notice a drive starting or measure its miles, so trips would be missing from the mileage log the user keeps for IRS records.
   ```
 - **How is the user told?** The in-app explanation shown before any location
-  prompt ("Mileage Log collects location data to detect your drives and measure
+  prompt ("Tax Mileage Tracker collects location data to detect your drives and measure
   their miles for your mileage log, even when the app is closed or not in use").
   Automatic detection is off by default.
 - **Video:** the unlisted YouTube link.
@@ -199,7 +199,7 @@ If your account isn't covered by that rule, you can skip the 14 days: create a
 
 Play signs the app with Google's key, which is different from the sideloaded
 APKs, so Android won't install one over the other. When you switch: open
-Mileage Log → Settings → **Save backup**, uninstall, install from Play, then
+Tax Mileage Tracker → Settings → **Save backup**, uninstall, install from Play, then
 **Restore**.
 
 ### Later updates

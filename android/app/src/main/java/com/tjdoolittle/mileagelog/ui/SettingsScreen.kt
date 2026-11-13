@@ -202,7 +202,7 @@ fun SettingsScreen(data: AppData, year: Int, resumeTick: Int, onClose: () -> Uni
                     BigButton("Save backup", Modifier.weight(1f), kind = "outline") { backupOut.launch("mileage-log-backup-${Store.today()}.json") }
                     BigButton("Restore", Modifier.weight(1f), kind = "outline") { restoreIn.launch(arrayOf("application/json", "*/*")) }
                 }
-                Text("Trips live only on this phone. Backups also restore into the Mileage Log web app, and its backups restore here.",
+                Text("Trips live only on this phone. Backups also restore into the Tax Mileage Tracker web app, and its backups restore here.",
                     style = Type.small, color = p.muted)
             }
 
