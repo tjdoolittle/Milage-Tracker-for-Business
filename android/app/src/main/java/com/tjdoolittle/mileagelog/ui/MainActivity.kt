@@ -8,7 +8,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
+import android.graphics.Color as AndroidColor
+import com.google.android.play.core.review.ReviewManagerFactory
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -50,8 +54,28 @@ class MainActivity : ComponentActivity() {
         if (savedInstanceState == null) handleIntent(intent)
 
         setContent {
-            MileageTheme {
-                val data by Store.state.collectAsState()
+            val data by Store.state.collectAsState()
+            val dark = when (data.settings.theme) { "light" -> false; "dark" -> true; else -> isSystemInDarkTheme() }
+            // Keep status and navigation bar icons readable when the app's theme differs from the phone's.
+            LaunchedEffect(dark) {
+                val bars = if (dark) SystemBarStyle.dark(AndroidColor.TRANSPARENT)
+                else SystemBarStyle.light(AndroidColor.TRANSPARENT, AndroidColor.TRANSPARENT)
+                enableEdgeToEdge(bars, bars)
+            }
+            // Ask the store for a rating once, after the log has some real use.
+            val loggedCount = data.trips.count { it.status == Status.LOGGED }
+            LaunchedEffect(loggedCount >= 10) {
+                if (loggedCount >= 10 && !data.settings.reviewAsked && !Store.demo) {
+                    Store.setSettings(Store.data.settings.copy(reviewAsked = true))
+                    runCatching {
+                        val rm = ReviewManagerFactory.create(this@MainActivity)
+                        rm.requestReviewFlow().addOnCompleteListener { t ->
+                            if (t.isSuccessful) rm.launchReviewFlow(this@MainActivity, t.result)
+                        }
+                    }
+                }
+            }
+            MileageTheme(dark) {
                 val live by Tracker.live.collectAsState()
                 val accuracy by TrackingService.accuracy.collectAsState()
                 var year by rememberSaveable { mutableIntStateOf(Calendar.getInstance().get(Calendar.YEAR)) }
@@ -71,7 +95,9 @@ class MainActivity : ComponentActivity() {
 
                 BackHandler(enabled = screen != Screen.Home) { screen = Screen.Home }
 
-                when (val s = screen) {
+                if (!data.settings.introDismissed) Walkthrough {
+                    Store.setSettings(Store.data.settings.copy(introDismissed = true, seenNews = Store.WHATS_NEW_ID))
+                } else when (val s = screen) {
                     Screen.Home -> HomeScreen(
                         data = data, live = live, gpsAccuracy = accuracy, year = year,
                         onYear = { year = it },
@@ -132,6 +158,10 @@ class MainActivity : ComponentActivity() {
         val active = i.getBooleanExtra("active", false)
         Store.loadDemo(DemoData.make(active))
         if (active) { Tracker.live.value = Store.data.active; TrackingService.demoAccuracy(5.0) }
+        // Screenshot job extras: show the walkthrough, a theme, or the What's new card.
+        if (i.getBooleanExtra("walkthrough", false)) Store.setSettings(Store.data.settings.copy(introDismissed = false))
+        if (i.getBooleanExtra("news", false)) Store.setSettings(Store.data.settings.copy(seenNews = ""))
+        i.getStringExtra("theme")?.let { Store.setSettings(Store.data.settings.copy(theme = it)) }
         // Screenshot job: write a sample tax report the script can pull off the emulator.
         if (i.getBooleanExtra("pdf", false)) {
             runCatching {

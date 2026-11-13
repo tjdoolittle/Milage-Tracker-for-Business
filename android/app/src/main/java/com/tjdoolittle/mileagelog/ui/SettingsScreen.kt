@@ -46,6 +46,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
@@ -229,12 +231,9 @@ fun SettingsScreen(data: AppData, year: Int, resumeTick: Int, onClose: () -> Uni
             Card {
                 Text("Your log", style = Type.bodyBold, color = p.ink)
                 Text(Store.RESPONSIBILITY + " This app isn't tax advice. " + Store.GOV_DISCLAIMER, style = Type.small, color = p.muted)
-                if (s.introDismissed) {
-                    Text("Show the how-it-works tips again", style = Type.bodyBold, color = p.signText,
-                        modifier = Modifier.clickable { Store.setSettings(Store.data.settings.copy(introDismissed = false)); toast(ctx, "Tips are back on the home screen") }
-                            .padding(vertical = 4.dp))
-                }
             }
+            AppearanceCard(s.theme)
+            HelpCard()
             Text("Mileage Log for Android · version ${versionName(ctx)}", style = Type.small, color = p.muted, modifier = Modifier.padding(bottom = 16.dp))
         }
     }
@@ -421,6 +420,57 @@ private fun RateDialog(initial: RatePeriod?, canDelete: Boolean, onSave: (RatePe
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
     )
+}
+
+@Composable
+private fun AppearanceCard(theme: String) {
+    val p = LocalPalette.current
+    Card {
+        Text("Appearance", style = Type.bodyBold, color = p.ink)
+        Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).border(1.dp, p.line, RoundedCornerShape(10.dp))) {
+            listOf("system" to "Match phone", "light" to "Light", "dark" to "Dark").forEach { (key, label) ->
+                val sel = theme == key
+                Text(label, style = Type.bodyBold.copy(fontSize = 15.sp), color = if (sel) p.signInk else p.ink, textAlign = TextAlign.Center, maxLines = 1,
+                    modifier = Modifier.weight(1f).background(if (sel) p.sign else Color.Transparent)
+                        .clickable { Store.setSettings(Store.data.settings.copy(theme = key)) }.padding(vertical = 12.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun HelpCard() {
+    val p = LocalPalette.current
+    val ctx = LocalContext.current
+    var open by rememberSaveable { mutableStateOf(-1) }
+    Card {
+        Text("Help and feedback", style = Type.bodyBold, color = p.ink)
+        Store.FAQ.forEachIndexed { i, (q, a) ->
+            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).clickable { open = if (open == i) -1 else i }.padding(vertical = 8.dp, horizontal = 4.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(q, style = Type.body, color = p.ink, modifier = Modifier.weight(1f))
+                    Text(if (open == i) "−" else "+", style = Type.title, color = p.signText, modifier = Modifier.padding(start = 8.dp))
+                }
+                if (open == i) Text(a, style = Type.small, color = p.muted, modifier = Modifier.padding(top = 6.dp))
+            }
+            Box(Modifier.fillMaxWidth().height(1.dp).background(p.line))
+        }
+        BigButton("Show the walkthrough again", Modifier.fillMaxWidth(), kind = "outline") {
+            Store.setSettings(Store.data.settings.copy(introDismissed = false))
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            BigButton("Send feedback", Modifier.weight(1f), kind = "outline") {
+                val body = "\n\n---\nTax Mileage Tracker ${versionName(ctx)}, Android ${Build.VERSION.RELEASE}, ${Build.MANUFACTURER} ${Build.MODEL}"
+                val uri = Uri.parse("mailto:${Store.SUPPORT_EMAIL}?subject=" + Uri.encode("Tax Mileage Tracker feedback") + "&body=" + Uri.encode(body))
+                runCatching { ctx.startActivity(Intent(Intent.ACTION_SENDTO, uri)) }.onFailure { toast(ctx, "No email app found. Write to ${Store.SUPPORT_EMAIL}") }
+            }
+            BigButton("Rate the app", Modifier.weight(1f), kind = "outline") {
+                val pkg = ctx.packageName
+                runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$pkg")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
+                    .onFailure { runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=$pkg"))) } }
+            }
+        }
+    }
 }
 
 @Composable
