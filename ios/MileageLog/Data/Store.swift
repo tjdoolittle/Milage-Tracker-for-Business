@@ -86,6 +86,37 @@ final class Store: ObservableObject {
     ]
     static let irsSourceURL = URL(string: "https://www.irs.gov/tax-professionals/standard-mileage-rates")!
     static let govDisclaimer = "Tax Mileage Tracker is not affiliated with, endorsed by, or acting for the IRS or any government agency."
+    static let supportEmail = "doolittle.thomas+apps@gmail.com"
+    static let appStoreReviewURL = URL(string: "https://apps.apple.com/app/id6829102290?action=write-review")!
+
+    /// First-launch walkthrough: (title, body). Pages 1 to 3 keep the owner's wording.
+    static let walkthrough: [(String, String)] = [
+        ("Every trip, logged", "Tax Mileage Tracker automatically logs every trip you take. Turn on automatic drive detection in Settings, or tap Start trip when you leave."),
+        ("Log the trips you'll file", "To create your log, you must click \u{201C}Log trip\u{201D} after completing each trip that is to be filed. Drives the app detects wait under To Review: tap Business or Personal."),
+        ("Add the tax details", "Categorize your trips and provide other necessary tax information when logging, so that complete logs can simply be downloaded and submitted at tax time. Parking, tolls, and your vehicle go on the trip too."),
+        ("Ready at tax time", "In Settings, make a PDF tax report or a spreadsheet for any year. Your trips stay on this phone, so save a backup now and then."),
+    ]
+
+    /// Bump the id when there's something new to announce; existing users see the card once.
+    static let whatsNewId = "2026-11-report"
+    static let whatsNew = [
+        "PDF tax report in Settings, ready for your tax preparer",
+        "Parking and tolls on any trip",
+        "More than one vehicle, with yearly odometer readings",
+        "Light, dark, or match your phone: Settings, Appearance",
+        "Help and answers to common questions in Settings",
+    ]
+
+    static let faq: [(String, String)] = [
+        ("Why wasn't a drive logged automatically?", "Automatic drive detection has to be on, with location set to Always and Motion & Fitness allowed. The checklist in Settings shows anything missing. Drives shorter than half a mile are skipped."),
+        ("Do I have to mark every drive?", "Yes. Detected drives wait under To Review until you tap Business or Personal. Only business trips count toward your deduction and the tax report."),
+        ("Is my commute deductible?", "Regular commuting between home and your main workplace generally isn't. Trips between your saved home and work addresses are flagged so you can mark them personal. Ask a tax professional about your situation."),
+        ("Which rate does the app use?", "Each trip uses the IRS standard mileage rate in effect on the day you drove it. You can see and change the rates in Settings, under Mileage rates."),
+        ("Can I deduct parking and tolls?", "Parking fees and tolls for business trips are generally deductible on top of the mileage rate. Enter them on the trip and they're added to the report."),
+        ("What do I give my tax preparer?", "The PDF tax report in Settings, under Tax time. It has your totals, vehicle miles, a monthly table, and every trip. The CSV has the same trips as a spreadsheet."),
+        ("Where is my data stored?", "Only on this phone. Nothing is sent anywhere unless you export it. Save a backup to restore on a new phone; it also opens in the Android and web versions."),
+    ]
+
     static let responsibility = "Tax Mileage Tracker tracks all your trips, but you're responsible for the data you log. Check each trip before you count it."
 
     /// Save the home or work address. When it was found on the map it also becomes a saved

@@ -45,6 +45,17 @@ adb shell cmd uimode night yes
 shot 5-dark --ez active true
 adb shell cmd uimode night no
 
+# Extra checks (not store screenshots): walkthrough, What's new, forced dark theme, help section.
+mkdir -p "$OUT/extra"
+shot extra/walkthrough --ez walkthrough true
+adb shell input swipe 900 1200 150 1200 300; sleep 2
+adb exec-out screencap -p > "$OUT/extra/walkthrough-2.png"
+shot extra/whats-new --ez news true
+shot extra/forced-dark --es theme dark --ez active true
+shot extra/settings-help --es screen settings
+for n in 1 2 3 4 5 6 7 8; do adb shell input swipe 540 1700 540 300 250; done; sleep 2
+adb exec-out screencap -p > "$OUT/extra/settings-help.png"
+
 # Sample tax report (debug build writes it from the demo data).
 adb shell am force-stop "$PKG"
 adb shell am start -W -n "$PKG/.ui.MainActivity" --ez demo true --ez pdf true >/dev/null

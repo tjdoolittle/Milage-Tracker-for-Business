@@ -103,7 +103,7 @@ final class Tracker: NSObject, ObservableObject, CLLocationManagerDelegate {
             startManual()
         } else if startWhenAuthorized && (auth == .denied || auth == .restricted) {
             startWhenAuthorized = false
-            alert = "Mileage Log needs location access to measure trips. Turn it on in Settings, or log trips by hand."
+            alert = "Tax Mileage Tracker needs location access to measure trips. Turn it on in Settings, or log trips by hand."
         }
         if hasAlways && store.data.settings.autoDetect { enableAutoDetect() }
     }
@@ -113,7 +113,7 @@ final class Tracker: NSObject, ObservableObject, CLLocationManagerDelegate {
     func startManual() {
         guard hasLocation else {
             if auth == .notDetermined { startWhenAuthorized = true; manager.requestWhenInUseAuthorization() }
-            else { alert = "Mileage Log needs location access to measure trips. Turn it on in Settings, or log trips by hand." }
+            else { alert = "Tax Mileage Tracker needs location access to measure trips. Turn it on in Settings, or log trips by hand." }
             return
         }
         Notifier.requestPermission()

@@ -1,11 +1,11 @@
-# Mileage Log for iPhone
+# Tax Mileage Tracker for iPhone
 
 A business mileage tracker that measures your drives with GPS, even with the
 screen locked and the phone in your pocket. Turn on automatic drive detection
 and it notices when you start driving, tracks the trip, and adds it to a review
 list. Later you tap **Business** or **Personal**.
 
-It's the iPhone version of Mileage Log. The [web app](https://tjdoolittle.github.io/mileage-log/)
+It's the iPhone version of Tax Mileage Tracker. The [web app](https://tjdoolittle.github.io/mileage-log/)
 and the Android app use the same backup format, so trips move between all three.
 
 <!-- SCREENSHOTS -->
@@ -40,11 +40,11 @@ a new version.
 
 ## Set it up on the phone
 
-1. Open Mileage Log, tap the **gear**, and turn on **Automatic drive detection**.
+1. Open Tax Mileage Tracker, tap the **gear**, and turn on **Automatic drive detection**.
 2. Allow location **While Using** first. iOS asks again later; choose
    **Change to Always Allow**. Without Always, tracking can't start in your pocket.
 3. Allow **Motion & Fitness** and **Notifications**.
-4. Leave **Background App Refresh** on for Mileage Log, and don't swipe it away
+4. Leave **Background App Refresh** on for Tax Mileage Tracker, and don't swipe it away
    in the app switcher. iOS won't wake a force-quit app until you open it again.
 
 ## How it works

@@ -97,7 +97,7 @@ fun HomeScreen(
                     Box(Modifier.size(22.dp).clip(RoundedCornerShape(5.dp)).background(p.sign), contentAlignment = Alignment.Center) {
                         Text("MI", style = Type.tiny.copy(fontSize = 8.sp), color = p.signInk)
                     }
-                    Text("MILEAGE LOG", style = Type.label.copy(fontSize = 15.sp), color = p.ink, modifier = Modifier.padding(start = 8.dp).weight(1f))
+                    Text("TAX MILEAGE TRACKER", style = Type.label.copy(fontSize = 15.sp), color = p.ink, modifier = Modifier.padding(start = 8.dp).weight(1f))
                     IconButton(onClick = onSettings) { Icon(Icons.Filled.Settings, contentDescription = "Settings and export", tint = p.ink) }
                 }
             }
@@ -122,8 +122,8 @@ fun HomeScreen(
                     if (isCur) now.get(Calendar.MONTH) else null, onYearClick = { pickYear = true }, onRateClick = onSettings)
             }
             if (active != null) item { ActiveBanner(active, gpsAccuracy, onDiscard) }
-            if (!data.settings.introDismissed) item {
-                IntroCard { Store.setSettings(Store.data.settings.copy(introDismissed = true)) }
+            if (data.settings.introDismissed && data.settings.seenNews != Store.WHATS_NEW_ID) item {
+                WhatsNewCard { Store.setSettings(Store.data.settings.copy(seenNews = Store.WHATS_NEW_ID)) }
             }
             if (review.isNotEmpty()) {
                 item {
@@ -193,17 +193,17 @@ private fun YearDialog(years: List<Int>, selected: Int, onPick: (Int) -> Unit, o
     )
 }
 
-/** First-run directions. Stays until dismissed; Settings can bring it back. */
+/** Shown once after an update that adds features. */
 @Composable
-private fun IntroCard(onDismiss: () -> Unit) {
+private fun WhatsNewCard(onDismiss: () -> Unit) {
     val p = LocalPalette.current
     Column(
         Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(p.surface)
             .border(1.5.dp, p.sign, RoundedCornerShape(12.dp)).padding(14.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        Text("HOW IT WORKS", style = Type.label, color = p.signText)
-        Store.INTRO.forEach { Text(it, style = Type.body, color = p.ink) }
+        Text("NEW IN THIS VERSION", style = Type.label, color = p.signText)
+        Store.WHATS_NEW.forEach { Text("• $it", style = Type.body, color = p.ink) }
         TextButton(onClick = onDismiss, modifier = Modifier.align(Alignment.End)) {
             Text("GOT IT", style = Type.label, color = p.signText)
         }
@@ -308,7 +308,7 @@ private fun EmptyState(year: Int) {
         horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text("No $year trips logged yet", style = Type.title.copy(fontSize = 19.sp), color = p.ink, textAlign = TextAlign.Center)
-        Text("Tap Start trip when you head out, or turn on automatic drive detection in Settings and Mileage Log will notice when you drive.",
+        Text("Tap Start trip when you head out, or turn on automatic drive detection in Settings and Tax Mileage Tracker will notice when you drive.",
             style = Type.body, color = p.muted, textAlign = TextAlign.Center)
     }
 }

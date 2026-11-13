@@ -66,7 +66,7 @@ object DemoData {
         return AppData(
             trips = trips,
             settings = Settings(
-                places = places, autoDetect = true, introDismissed = true, reportName = "Hartley AV Installs",
+                places = places, autoDetect = true, introDismissed = true, seenNews = Store.WHATS_NEW_ID, reportName = "Hartley AV Installs",
                 vehicles = listOf(
                     Vehicle("v-van", "2022 Ford Transit", "2022-03-14", mapOf(today.year to YearOdo(41_250.0, null))),
                     Vehicle("v-car", "2019 Honda Accord", "2019-08-02", mapOf(today.year to YearOdo(68_910.0, 79_420.0))),

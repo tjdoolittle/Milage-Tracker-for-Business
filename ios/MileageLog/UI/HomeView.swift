@@ -36,10 +36,10 @@ struct HomeView: View {
                 if let a = tracker.live ?? store.data.active {
                     ActiveBanner(trip: a, accuracy: tracker.accuracy) { tracker.discard() }
                 }
-                if !store.data.settings.introDismissed {
-                    IntroCard {
+                if store.data.settings.introDismissed && store.data.settings.seenNews != Store.whatsNewId {
+                    WhatsNewCard {
                         var s = store.data.settings
-                        s.introDismissed = true
+                        s.seenNews = Store.whatsNewId
                         store.setSettings(s)
                     }
                 }
@@ -101,7 +101,7 @@ struct HomeView: View {
         HStack(spacing: 8) {
             Text("MI").font(Fonts.sign(8)).foregroundStyle(Palette.signInk)
                 .frame(width: 22, height: 22).background(RoundedRectangle(cornerRadius: 5).fill(Palette.sign))
-            SignLabel(text: "Mileage Log", size: 15, color: Palette.ink)
+            SignLabel(text: "Tax Mileage Tracker", size: 15, color: Palette.ink)
             Spacer()
             Button { router.showSettings = true } label: {
                 Image(systemName: "gearshape").font(.system(size: 20, weight: .semibold)).foregroundStyle(Palette.ink)
@@ -227,13 +227,13 @@ struct Odometer: View {
 
 // MARK: - Rows
 
-/// First-run directions. Stays until dismissed; Settings can bring it back.
-struct IntroCard: View {
+/// Shown once after an update that adds features.
+struct WhatsNewCard: View {
     var onDismiss: () -> Void
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            SignLabel(text: "How it works", color: Palette.signText)
-            ForEach(Store.intro, id: \.self) { Text($0).font(Fonts.body()).foregroundStyle(Palette.ink) }
+        VStack(alignment: .leading, spacing: 6) {
+            SignLabel(text: "New in this version", color: Palette.signText)
+            ForEach(Store.whatsNew, id: \.self) { Text("• " + $0).font(Fonts.body()).foregroundStyle(Palette.ink) }
             HStack {
                 Spacer()
                 Button("Got it", action: onDismiss).font(Fonts.sign(14)).tint(Palette.signText)
@@ -389,7 +389,7 @@ struct EmptyState: View {
     var body: some View {
         VStack(spacing: 8) {
             Text("No \(String(year)) trips logged yet").font(Fonts.sign(19)).foregroundStyle(Palette.ink).multilineTextAlignment(.center)
-            Text("Tap Start trip when you head out, or turn on automatic drive detection in Settings and Mileage Log will notice when you drive.")
+            Text("Tap Start trip when you head out, or turn on automatic drive detection in Settings and Tax Mileage Tracker will notice when you drive.")
                 .font(Fonts.body()).foregroundStyle(Palette.muted).multilineTextAlignment(.center)
         }
         .padding(.horizontal, 20).padding(.vertical, 26)

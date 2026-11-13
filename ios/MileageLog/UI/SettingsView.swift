@@ -35,16 +35,11 @@ struct SettingsView: View {
                 if !store.data.settings.places.isEmpty { placesSection }
                 Section {
                     Text(Store.responsibility + " This app isn't tax advice. " + Store.govDisclaimer).font(Fonts.body(14)).foregroundStyle(Palette.muted)
-                    if store.data.settings.introDismissed {
-                        Button("Show the how-it-works tips again") {
-                            var s = store.data.settings
-                            s.introDismissed = false
-                            store.setSettings(s)
-                        }
-                    }
                 } header: {
                     Text("Your log")
                 }
+                AppearanceSection()
+                HelpSection()
                 Section {
                     Link(destination: URL(string: "https://tjdoolittle.github.io/mileage-log/support.html")!) {
                         Label("Support", systemImage: "questionmark.circle")
@@ -53,7 +48,7 @@ struct SettingsView: View {
                         Label("Privacy policy", systemImage: "hand.raised")
                     }
                 } footer: {
-                    Text("Mileage Log for iPhone · version \(appVersion)").font(Fonts.body(13)).foregroundStyle(Palette.muted)
+                    Text("Tax Mileage Tracker for iPhone · version \(appVersion)").font(Fonts.body(13)).foregroundStyle(Palette.muted)
                 }
             }
             .font(Fonts.body())
@@ -78,7 +73,7 @@ struct SettingsView: View {
                 if let raw = try? Data(contentsOf: url), let r = Exports.restore(raw, store: store) {
                     message = "Restored \(r.0) trip\(r.0 == 1 ? "" : "s"). \(r.1) were already here."
                 } else {
-                    message = "That file isn't a Mileage Log backup."
+                    message = "That file isn't a Tax Mileage Tracker backup."
                 }
             }
             .alert(message ?? "", isPresented: Binding(get: { message != nil }, set: { if !$0 { message = nil } })) {
@@ -123,7 +118,7 @@ struct SettingsView: View {
             }
         } footer: {
             if store.data.settings.autoDetect {
-                Text("Leave Background App Refresh on for Mileage Log, and avoid swiping it away in the app switcher: iOS won't wake an app you've force-quit until you open it again.")
+                Text("Leave Background App Refresh on for Tax Mileage Tracker, and avoid swiping it away in the app switcher: iOS won't wake an app you've force-quit until you open it again.")
             }
         }
     }
@@ -225,6 +220,61 @@ struct SettingsView: View {
         let v = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
         let b = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
         return "\(v) (\(b))"
+    }
+}
+
+struct AppearanceSection: View {
+    @EnvironmentObject private var store: Store
+    var body: some View {
+        Section {
+            Picker("Theme", selection: Binding(
+                get: { store.data.settings.theme },
+                set: { v in var s = store.data.settings; s.theme = v; store.setSettings(s) })) {
+                Text("Match phone").tag("system")
+                Text("Light").tag("light")
+                Text("Dark").tag("dark")
+            }
+            .pickerStyle(.segmented)
+        } header: {
+            Text("Appearance")
+        }
+    }
+}
+
+struct HelpSection: View {
+    @EnvironmentObject private var store: Store
+
+    private var feedbackURL: URL? {
+        let v = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+        let b = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
+        let body = "\n\n---\nTax Mileage Tracker \(v) (\(b)), iOS \(UIDevice.current.systemVersion), \(UIDevice.current.model)"
+        let q = { (t: String) in t.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed.subtracting(CharacterSet(charactersIn: "&=?+"))) ?? "" }
+        return URL(string: "mailto:\(Store.supportEmail)?subject=\(q("Tax Mileage Tracker feedback"))&body=\(q(body))")
+    }
+
+    var body: some View {
+        Section {
+            ForEach(Store.faq, id: \.0) { item in
+                DisclosureGroup {
+                    Text(item.1).font(Fonts.body(14)).foregroundStyle(Palette.muted)
+                } label: {
+                    Text(item.0).font(Fonts.body()).foregroundStyle(Palette.ink)
+                }
+            }
+            Button {
+                var s = store.data.settings
+                s.introDismissed = false
+                store.setSettings(s)
+            } label: {
+                Label("Show the walkthrough again", systemImage: "book")
+            }
+            if let url = feedbackURL {
+                Link(destination: url) { Label("Send feedback", systemImage: "envelope") }
+            }
+            Link(destination: Store.appStoreReviewURL) { Label("Rate the app", systemImage: "star") }
+        } header: {
+            Text("Help and feedback")
+        }
     }
 }
 

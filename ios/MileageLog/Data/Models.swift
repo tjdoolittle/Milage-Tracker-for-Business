@@ -124,11 +124,15 @@ struct AppSettings: Codable, Equatable {
     var introDismissed: Bool = false
     var vehicles: [Vehicle] = []
     var reportName: String = ""              // name or business printed on the tax report
+    var theme: String = "system"             // "system", "light", or "dark"
+    var seenNews: String = ""                // id of the last "What's new" card dismissed
+    var reviewAsked: Bool = false            // the store's rating prompt has been requested once
 
     init() {}
 
     enum CodingKeys: String, CodingKey {
-        case rates, ratePeriods, places, autoDetect, minAutoMiles, homeAddress, workAddress, introDismissed, vehicles, reportName
+        case rates, ratePeriods, places, autoDetect, minAutoMiles, homeAddress, workAddress, introDismissed, vehicles, reportName,
+             theme, seenNews, reviewAsked
     }
 
     init(from decoder: Decoder) throws {
@@ -144,6 +148,9 @@ struct AppSettings: Codable, Equatable {
         introDismissed = c.bool(.introDismissed) ?? false
         vehicles = ((try? c.decodeIfPresent([Vehicle].self, forKey: .vehicles)) ?? nil)?.filter { !$0.id.isEmpty } ?? []
         reportName = c.str(.reportName) ?? ""
+        theme = c.str(.theme) ?? "system"
+        seenNews = c.str(.seenNews) ?? ""
+        reviewAsked = c.bool(.reviewAsked) ?? false
     }
 }
 

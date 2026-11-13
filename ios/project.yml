@@ -21,7 +21,7 @@ targets:
     info:
       path: MileageLog/Info.plist
       properties:
-        CFBundleDisplayName: Mileage Log
+        CFBundleDisplayName: Tax Mileage Tracker
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSRequiresIPhoneOS: true
@@ -36,9 +36,9 @@ targets:
           - OverpassMono-SemiBold.ttf
           - AtkinsonHyperlegible-Regular.ttf
           - AtkinsonHyperlegible-Bold.ttf
-        NSLocationWhenInUseUsageDescription: Mileage Log uses your location to measure the miles of trips you start.
-        NSLocationAlwaysAndWhenInUseUsageDescription: With Always access, Mileage Log can notice when you start driving and measure the trip with your phone in your pocket. Your location never leaves your phone.
-        NSMotionUsageDescription: Mileage Log uses motion data to tell when you're driving, so it can start and stop trips automatically.
+        NSLocationWhenInUseUsageDescription: Tax Mileage Tracker uses your location to measure the miles of trips you start.
+        NSLocationAlwaysAndWhenInUseUsageDescription: With Always access, Tax Mileage Tracker can notice when you start driving and measure the trip with your phone in your pocket. Your location never leaves your phone.
+        NSMotionUsageDescription: Tax Mileage Tracker uses motion data to tell when you're driving, so it can start and stop trips automatically.
         ITSAppUsesNonExemptEncryption: false
     settings:
       base:

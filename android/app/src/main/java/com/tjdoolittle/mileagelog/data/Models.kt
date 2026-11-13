@@ -132,6 +132,9 @@ data class Settings(
     val introDismissed: Boolean = false,
     val vehicles: List<Vehicle> = emptyList(),
     val reportName: String = "",                       // name or business printed on the tax report
+    val theme: String = "system",                      // "system", "light", or "dark"
+    val seenNews: String = "",                         // id of the last "What's new" card dismissed
+    val reviewAsked: Boolean = false,                  // the store's rating prompt has been requested once
 ) {
     fun toJson(): JSONObject = JSONObject().apply {
         put("rates", JSONObject().also { r -> rates.forEach { (y, v) -> r.put(y.toString(), v) } })
@@ -144,6 +147,9 @@ data class Settings(
         put("introDismissed", introDismissed)
         put("vehicles", JSONArray().also { a -> vehicles.forEach { a.put(it.toJson()) } })
         put("reportName", reportName)
+        put("theme", theme)
+        put("seenNews", seenNews)
+        put("reviewAsked", reviewAsked)
     }
     companion object {
         fun fromJson(o: JSONObject?): Settings {
@@ -164,6 +170,9 @@ data class Settings(
                 introDismissed = o.optBoolean("introDismissed", false),
                 vehicles = o.optJSONArray("vehicles")?.let { a -> (0 until a.length()).mapNotNull { a.optJSONObject(it)?.let(Vehicle::fromJson) } } ?: emptyList(),
                 reportName = o.optString("reportName"),
+                theme = o.optString("theme").ifBlank { "system" },
+                seenNews = o.optString("seenNews"),
+                reviewAsked = o.optBoolean("reviewAsked", false),
             )
         }
     }

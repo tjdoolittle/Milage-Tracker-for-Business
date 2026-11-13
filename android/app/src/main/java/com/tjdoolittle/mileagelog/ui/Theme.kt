@@ -70,8 +70,7 @@ object Type {
 }
 
 @Composable
-fun MileageTheme(content: @Composable () -> Unit) {
-    val dark = isSystemInDarkTheme()
+fun MileageTheme(dark: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val p = if (dark) DarkPalette else LightPalette
     val scheme = if (dark) darkColorScheme(
         primary = p.sign, onPrimary = p.signInk, background = p.bg, onBackground = p.ink,

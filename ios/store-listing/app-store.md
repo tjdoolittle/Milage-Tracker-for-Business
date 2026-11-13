@@ -1,4 +1,4 @@
-# App Store listing: Mileage Log
+# App Store listing: Tax Mileage Tracker
 
 Everything App Store Connect asks for, ready to paste. Character limits are
 Apple's; every field here fits.
@@ -128,7 +128,7 @@ sent to you or anyone else.
 **Notes** (this matters: Apple looks closely at apps that use location *Always*):
 
 ```
-Mileage Log is a business mileage log. It uses location to measure the distance of the user's drives for IRS mileage records.
+Tax Mileage Tracker is a business mileage log. It uses location to measure the distance of the user's drives for IRS mileage records.
 
 Why "Always" location: with Automatic drive detection turned on (Settings, off by default), the app uses Motion & Fitness, significant location changes, and a geofence around the last parking spot to notice when a drive starts, then measures the drive with GPS while the phone is in a pocket or bag. This only works with Always access. The blue location indicator is shown while a drive is being measured. Without Always, users can still track trips by tapping Start trip and Finish trip, or enter trips by hand.
 

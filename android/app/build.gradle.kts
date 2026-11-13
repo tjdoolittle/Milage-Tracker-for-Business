@@ -78,6 +78,8 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.9.3")
     // play-services-location pulls in fragment 1.1.0, which Google flags as outdated.
     implementation("androidx.fragment:fragment-ktx:1.8.5")
+    // Google Play in-app rating prompt.
+    implementation("com.google.android.play:review-ktx:2.0.2")
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")

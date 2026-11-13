@@ -1,4 +1,4 @@
-# Mileage Log for Android
+# Tax Mileage Tracker for Android
 
 A business mileage tracker that measures your drives with GPS, even with the
 screen off and the phone in your pocket. Turn on automatic drive detection and
@@ -14,7 +14,7 @@ The app isn't on the Play Store. You install the APK directly ("sideloading").
 
 1. On your Android phone, open this repo's
    [Releases page](https://github.com/tjdoolittle/Milage-Tracker-for-Business/releases).
-2. Open the newest **Mileage Log for Android** release and tap
+2. Open the newest **Tax Mileage Tracker for Android** release and tap
    `MileageLog-1.0.N.apk` to download it.
 3. Open the downloaded file. Android will ask to allow installs from your
    browser: tap **Settings**, turn on **Allow from this source**, go back, and
@@ -25,7 +25,7 @@ The app isn't on the Play Store. You install the APK directly ("sideloading").
 
 **Switching to the new signing key (one time):** releases from October 30,
 2026 on are signed with a new key. If you installed an earlier version, Android
-will refuse the update. Open Mileage Log, tap the gear, tap **Save backup**,
+will refuse the update. Open Tax Mileage Tracker, tap the gear, tap **Save backup**,
 uninstall the app, install the new APK, then tap **Restore** and pick the backup.
 You only do this once; later updates install normally.
 
@@ -35,7 +35,7 @@ that changes the app builds a new release automatically.
 
 ## Set it up
 
-1. Open Mileage Log and tap the **gear** in the top corner.
+1. Open Tax Mileage Tracker and tap the **gear** in the top corner.
 2. Turn on **Automatic drive detection**. Allow **location**, **physical
    activity**, and **notifications** when Android asks.
 3. Work through the setup checklist that appears:
@@ -46,7 +46,7 @@ that changes the app builds a new release automatically.
      (Samsung especially) block GPS from starting in the background.
 
 Some phones need one more step. On Samsung, go to **Settings > Battery >
-Background usage limits** and make sure Mileage Log isn't in "Sleeping apps" or
+Background usage limits** and make sure Tax Mileage Tracker isn't in "Sleeping apps" or
 "Deep sleeping apps".
 
 ## Using it
