@@ -17,6 +17,7 @@ SLIDES = [   # upload order: the first three tell the core story
     ("1-drive-detected", "Logs drives on its own", "Automatic detection measures each trip with your phone in your pocket.", GREEN),
     ("2-review", "Business or personal? One tap.", "GPS miles and addresses fill in. Pick a purpose and save.", GREEN),
     ("3-home", "Every business mile, added up", "Your miles and IRS deduction for the year, at a glance.", GREEN),
+    ("6-report", "A tax report, ready to hand over", "Totals, Schedule C vehicle miles, parking and tolls, and every trip, as a PDF.", GREEN),
     ("4-settings", "Set it up once", "Turn on detection, save home and work, and you're ready to drive.", GREEN),
     ("5-dark", "Private, and easy on the eyes", "Dark mode, no account, and your trips never leave your phone.", DARK),
 ]
@@ -60,12 +61,12 @@ def drop(img, p, x, y, blur=24, alpha=110):
 def screenshots():
     os.makedirs(os.path.join(OUT, "screenshots"), exist_ok=True)
     W, H = 1080, 1920
-    for name, head, sub, bg in SLIDES:
+    for order, (name, head, sub, bg) in enumerate(SLIDES, 1):
         src = os.path.join(RAW, name + ".png")
         if not os.path.exists(src): print("missing", src); continue
         img = Image.new("RGB", (W, H), bg); d = ImageDraw.Draw(img)
         d.rounded_rectangle([28, 28, W - 29, H + 200], radius=48, outline=WHITE, width=7)
-        d.text((W / 2, 110), "M I L E A G E   L O G", font=sign_font(32), fill=SOFT, anchor="mm")
+        d.text((W / 2, 110), "T A X   M I L E A G E   T R A C K E R", font=sign_font(32), fill=SOFT, anchor="mm")
         hf = sign_font(82); y = 170
         for line in wrap(d, head, hf, W - 170):
             d.text((W / 2, y), line, font=hf, fill=WHITE, anchor="mt"); y += 94
@@ -74,7 +75,7 @@ def screenshots():
             d.text((W / 2, y), line, font=sf, fill=SOFT, anchor="mt"); y += 50
         p = phone(Image.open(src), 760)
         drop(img, p, (W - p.width) // 2, max(y + 50, 520))
-        img.save(os.path.join(OUT, "screenshots", name + ".png"), optimize=True)
+        img.save(os.path.join(OUT, "screenshots", f"{order}-{name.split('-', 1)[1]}.png"), optimize=True)
         print("wrote", name, img.size)
 
 def feature_graphic():
@@ -83,7 +84,7 @@ def feature_graphic():
     img = Image.new("RGB", (W, H), GREEN); d = ImageDraw.Draw(img)
     d.rounded_rectangle([14, 14, W - 15, H - 15], radius=26, outline=WHITE, width=4)
     x = 64
-    d.text((x, 120), "M I L E A G E   L O G", font=sign_font(20), fill=SOFT)
+    d.text((x, 120), "T A X   M I L E A G E   T R A C K E R", font=sign_font(20), fill=SOFT)
     hf = sign_font(52); y = 160
     for line in ["Every business mile,", "logged for you"]:
         d.text((x, y), line, font=hf, fill=WHITE); y += 60

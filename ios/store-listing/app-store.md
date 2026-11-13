@@ -4,7 +4,7 @@ Everything App Store Connect asks for, ready to paste. Character limits are
 Apple's; every field here fits.
 
 Screenshots are in [`screenshots/`](screenshots/), numbered in upload order
-(drive detected, review, home, rates, dark mode):
+(drive detected, review, home, tax report, rates, dark mode):
 
 | App Store Connect slot | Folder | Size | Needed? |
 | --- | --- | --- | --- |
@@ -109,7 +109,17 @@ Apple rejects trademarked keywords.
 
 ### What's New (later versions only)
 
-Leave blank for 1.0.
+Version 1.1:
+
+```
+New PDF tax report: your yearly totals, deduction, parking and tolls, the vehicle miles Schedule C asks for, a monthly table, and every trip, ready for your tax preparer.
+Add parking and tolls to any trip.
+Track more than one vehicle with yearly odometer readings.
+A quick walkthrough for new users, plus Help and answers to common questions in Settings.
+Choose light, dark, or match your phone.
+Send feedback or rate the app from Settings.
+New IRS rates from app updates now apply even if you changed your rates.
+```
 
 ---
 
@@ -141,7 +151,7 @@ To try it without driving: tap "+ Log trip" to enter a trip by hand, or tap "Sta
 
 ## Before you submit
 
-- [ ] Screenshots uploaded (5, in order)
+- [ ] Screenshots uploaded (6, in order)
 - [ ] Privacy Policy URL set on the App Information page
 - [ ] App Privacy answered: Data Not Collected
 - [ ] Build selected under the version (the TestFlight build)

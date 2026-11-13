@@ -83,13 +83,13 @@ def make(W, H, name):
             f = ImageFont.truetype(path, round(size))
             if max(d.textlength(l, font=f) for l in lines) <= col_w: return f
             size *= 0.96
-    eb = fit(["M I L E A G E   L O G"], SIGN, 30 * u)
+    eb = fit(["T A X   M I L E A G E   T R A C K E R"], SIGN, 30 * u)
     hf = fit(HEAD, SIGN, 104 * u)
     sf = fit(SUB, BODY, 40 * u)
     hs, ss = hf.size, sf.size
     block = eb.size * 1.2 + 30 * u + len(HEAD) * hs * 1.08 + 30 * u + len(SUB) * ss * 1.35
     y = y0 + (bh - block) / 2
-    d.text((x0, y), "M I L E A G E   L O G", font=eb, fill=SOFT); y += eb.size * 1.2 + 30 * u
+    d.text((x0, y), "T A X   M I L E A G E   T R A C K E R", font=eb, fill=SOFT); y += eb.size * 1.2 + 30 * u
     for l in HEAD: d.text((x0, y), l, font=hf, fill=WHITE); y += hs * 1.08
     y += 30 * u
     for l in SUB: d.text((x0, y), l, font=sf, fill=SOFT); y += ss * 1.35
@@ -99,8 +99,8 @@ def make(W, H, name):
     return img, (cx0, cy0, cx1, cy1)
 
 out = {}
-out["5244"] = make(5244, 2950, "mileage-log-header-5244x2950.png")
-out["3840"] = make(3840, 1646, "mileage-log-header-3840x1646.png")
+out["5244"] = make(5244, 2950, "tax-mileage-tracker-header-5244x2950.png")
+out["3840"] = make(3840, 1646, "tax-mileage-tracker-header-3840x1646.png")
 if len(sys.argv) > 3:   # optional: write what the search card would show
     for k, (img, box) in out.items():
         img.crop(tuple(round(v) for v in box)).resize((900, 600), Image.LANCZOS).save(os.path.join(sys.argv[3], f"search-crop-{k}.png"))

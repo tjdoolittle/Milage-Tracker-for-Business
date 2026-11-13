@@ -24,6 +24,7 @@ SLIDES = [
     ("2-drive-detected", "Logs drives on its own", "Automatic detection measures each trip with your phone in your pocket.", GREEN),
     ("3-review", "Business or personal? One tap.", "GPS miles and addresses fill in. Add the purpose and save.", GREEN),
     ("1-home", "Every business mile, added up", "Your miles and IRS deduction for the year, at a glance.", GREEN),
+    ("6-report", "A tax report, ready to hand over", "Totals, Schedule C vehicle miles, parking and tolls, and every trip, as a PDF.", GREEN),
     ("4-settings", "Midyear rate changes, handled", "Each trip uses the IRS rate for the day you drove: 72.5¢, then 76¢.", GREEN),
     ("5-dark", "Private, and easy on the eyes", "Dark mode, no account, and your trips never leave your phone.", INK_DARK),
 ]
@@ -66,7 +67,7 @@ for order, (name, head, sub, bg) in enumerate(SLIDES, start=1):
     # Highway-sign inset border along the top and sides.
     d.rounded_rectangle([34, 34, W - 35, H + 200], radius=58, outline=(255, 255, 255), width=8)
     eyebrow = ImageFont.truetype(SIGN, 40)
-    d.text((W / 2, 150), "M I L E A G E   L O G", font=eyebrow, fill=SOFT, anchor="mm")
+    d.text((W / 2, 150), "T A X   M I L E A G E   T R A C K E R", font=eyebrow, fill=SOFT, anchor="mm")
     hf = ImageFont.truetype(SIGN, 104); y = 230
     for line in wrap(d, head, hf, W - 200):
         d.text((W / 2, y), line, font=hf, fill=(255, 255, 255), anchor="mt"); y += 118
@@ -84,6 +85,6 @@ for order, (name, head, sub, bg) in enumerate(SLIDES, start=1):
     # The two sizes have the same shape, so the 6.3-inch image is a straight downscale.
     os.makedirs(os.path.join(OUT, "6.9-inch"), exist_ok=True)
     os.makedirs(os.path.join(OUT, "6.3-inch"), exist_ok=True)
-    img.save(os.path.join(OUT, "6.9-inch", f"{order}-mileage-log-{label}.png"), optimize=True)
-    img.resize((1206, 2622), Image.LANCZOS).save(os.path.join(OUT, "6.3-inch", f"{order}-mileage-log-{label}.png"), optimize=True)
+    img.save(os.path.join(OUT, "6.9-inch", f"{order}-tax-mileage-tracker-{label}.png"), optimize=True)
+    img.resize((1206, 2622), Image.LANCZOS).save(os.path.join(OUT, "6.3-inch", f"{order}-tax-mileage-tracker-{label}.png"), optimize=True)
     print("wrote", name)
