@@ -51,7 +51,7 @@ shot extra/walkthrough --ez walkthrough true
 adb shell input swipe 900 1200 150 1200 300; sleep 2
 adb exec-out screencap -p > "$OUT/extra/walkthrough-2.png"
 shot extra/whats-new --ez news true
-shot extra/forced-dark --ez theme dark --ez active true
+shot extra/forced-dark --es theme dark --ez active true
 shot extra/settings-help --es screen settings
 for n in 1 2 3 4 5 6 7 8; do adb shell input swipe 540 1700 540 300 250; done; sleep 2
 adb exec-out screencap -p > "$OUT/extra/settings-help.png"

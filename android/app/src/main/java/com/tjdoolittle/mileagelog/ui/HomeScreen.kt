@@ -308,7 +308,7 @@ private fun EmptyState(year: Int) {
         horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text("No $year trips logged yet", style = Type.title.copy(fontSize = 19.sp), color = p.ink, textAlign = TextAlign.Center)
-        Text("Tap Start trip when you head out, or turn on automatic drive detection in Settings and Mileage Log will notice when you drive.",
+        Text("Tap Start trip when you head out, or turn on automatic drive detection in Settings and Tax Mileage Tracker will notice when you drive.",
             style = Type.body, color = p.muted, textAlign = TextAlign.Center)
     }
 }

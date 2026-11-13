@@ -88,7 +88,7 @@ class ActivityReceiver : BroadcastReceiver() {
         val n = NotificationCompat.Builder(ctx, MileageApp.CH_DRIVES)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle("Driving? Tap to track this trip")
-            .setContentText("Battery saver stopped automatic tracking. Turn it off for Mileage Log in Settings.")
+            .setContentText("Battery saver stopped automatic tracking. Turn it off for Tax Mileage Tracker in Settings.")
             .setAutoCancel(true)
             .setContentIntent(open)
             .build()

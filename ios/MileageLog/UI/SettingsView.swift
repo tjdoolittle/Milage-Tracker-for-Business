@@ -48,7 +48,7 @@ struct SettingsView: View {
                         Label("Privacy policy", systemImage: "hand.raised")
                     }
                 } footer: {
-                    Text("Mileage Log for iPhone · version \(appVersion)").font(Fonts.body(13)).foregroundStyle(Palette.muted)
+                    Text("Tax Mileage Tracker for iPhone · version \(appVersion)").font(Fonts.body(13)).foregroundStyle(Palette.muted)
                 }
             }
             .font(Fonts.body())
@@ -73,7 +73,7 @@ struct SettingsView: View {
                 if let raw = try? Data(contentsOf: url), let r = Exports.restore(raw, store: store) {
                     message = "Restored \(r.0) trip\(r.0 == 1 ? "" : "s"). \(r.1) were already here."
                 } else {
-                    message = "That file isn't a Mileage Log backup."
+                    message = "That file isn't a Tax Mileage Tracker backup."
                 }
             }
             .alert(message ?? "", isPresented: Binding(get: { message != nil }, set: { if !$0 { message = nil } })) {
@@ -118,7 +118,7 @@ struct SettingsView: View {
             }
         } footer: {
             if store.data.settings.autoDetect {
-                Text("Leave Background App Refresh on for Mileage Log, and avoid swiping it away in the app switcher: iOS won't wake an app you've force-quit until you open it again.")
+                Text("Leave Background App Refresh on for Tax Mileage Tracker, and avoid swiping it away in the app switcher: iOS won't wake an app you've force-quit until you open it again.")
             }
         }
     }

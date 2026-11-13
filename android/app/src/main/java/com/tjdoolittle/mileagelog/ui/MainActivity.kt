@@ -82,7 +82,7 @@ class MainActivity : ComponentActivity() {
 
                 val askForTracking = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
                     if (hasLocation(this)) Tracker.startManual(this)
-                    else toast(this, "Mileage Log needs location access to measure trips. You can still log trips by hand.")
+                    else toast(this, "Tax Mileage Tracker needs location access to measure trips. You can still log trips by hand.")
                 }
                 fun startTrip() {
                     val need = buildList {

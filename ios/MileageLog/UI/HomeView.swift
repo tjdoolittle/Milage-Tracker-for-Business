@@ -389,7 +389,7 @@ struct EmptyState: View {
     var body: some View {
         VStack(spacing: 8) {
             Text("No \(String(year)) trips logged yet").font(Fonts.sign(19)).foregroundStyle(Palette.ink).multilineTextAlignment(.center)
-            Text("Tap Start trip when you head out, or turn on automatic drive detection in Settings and Mileage Log will notice when you drive.")
+            Text("Tap Start trip when you head out, or turn on automatic drive detection in Settings and Tax Mileage Tracker will notice when you drive.")
                 .font(Fonts.body()).foregroundStyle(Palette.muted).multilineTextAlignment(.center)
         }
         .padding(.horizontal, 20).padding(.vertical, 26)

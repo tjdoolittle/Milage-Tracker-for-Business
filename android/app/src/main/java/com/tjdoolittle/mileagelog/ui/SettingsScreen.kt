@@ -110,7 +110,7 @@ fun SettingsScreen(data: AppData, year: Int, resumeTick: Int, onClose: () -> Uni
         if (uri == null) return@rememberLauncherForActivityResult
         val text = runCatching { ctx.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() } }.getOrNull()
         val r = text?.let { Exports.restore(it) }
-        toast(ctx, if (r == null) "That file isn't a Mileage Log backup." else "Restored ${r.first} trips. ${r.second} were already here.")
+        toast(ctx, if (r == null) "That file isn't a Tax Mileage Tracker backup." else "Restored ${r.first} trips. ${r.second} were already here.")
     }
 
     fun basicsNeeded(): Array<String> = buildList {
@@ -234,7 +234,7 @@ fun SettingsScreen(data: AppData, year: Int, resumeTick: Int, onClose: () -> Uni
             }
             AppearanceCard(s.theme)
             HelpCard()
-            Text("Mileage Log for Android · version ${versionName(ctx)}", style = Type.small, color = p.muted, modifier = Modifier.padding(bottom = 16.dp))
+            Text("Tax Mileage Tracker for Android · version ${versionName(ctx)}", style = Type.small, color = p.muted, modifier = Modifier.padding(bottom = 16.dp))
         }
     }
     disclose?.let { action ->
@@ -274,7 +274,7 @@ fun LocationDisclosure(onContinue: () -> Unit, onDismiss: () -> Unit) {
         title = { Text("Location for automatic trips", style = Type.title, color = p.ink) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text("Mileage Log collects location data to detect your drives and measure their miles for your mileage log, even when the app is closed or not in use.",
+                Text("Tax Mileage Tracker collects location data to detect your drives and measure their miles for your mileage log, even when the app is closed or not in use.",
                     style = Type.body, color = p.ink)
                 Text("Physical activity data is used only to tell when you're in a car. Your location and trips stay on your phone and aren't shared.",
                     style = Type.small, color = p.muted)
@@ -458,13 +458,13 @@ private fun HelpCard() {
         BigButton("Show the walkthrough again", Modifier.fillMaxWidth(), kind = "outline") {
             Store.setSettings(Store.data.settings.copy(introDismissed = false))
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            BigButton("Send feedback", Modifier.weight(1f), kind = "outline") {
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            BigButton("Send feedback", Modifier.fillMaxWidth(), kind = "outline") {
                 val body = "\n\n---\nTax Mileage Tracker ${versionName(ctx)}, Android ${Build.VERSION.RELEASE}, ${Build.MANUFACTURER} ${Build.MODEL}"
                 val uri = Uri.parse("mailto:${Store.SUPPORT_EMAIL}?subject=" + Uri.encode("Tax Mileage Tracker feedback") + "&body=" + Uri.encode(body))
                 runCatching { ctx.startActivity(Intent(Intent.ACTION_SENDTO, uri)) }.onFailure { toast(ctx, "No email app found. Write to ${Store.SUPPORT_EMAIL}") }
             }
-            BigButton("Rate the app", Modifier.weight(1f), kind = "outline") {
+            BigButton("Rate the app", Modifier.fillMaxWidth(), kind = "outline") {
                 val pkg = ctx.packageName
                 runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$pkg")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
                     .onFailure { runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=$pkg"))) } }
