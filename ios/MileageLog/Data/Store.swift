@@ -86,6 +86,7 @@ final class Store: ObservableObject {
     ]
     static let irsSourceURL = URL(string: "https://www.irs.gov/tax-professionals/standard-mileage-rates")!
     static let govDisclaimer = "Tax Mileage Tracker is not affiliated with, endorsed by, or acting for the IRS or any government agency."
+    static let copyright = "© 2026 Thomas Doolittle. All rights reserved."
     static let supportEmail = "doolittle.thomas+apps@gmail.com"
     static let appStoreReviewURL = URL(string: "https://apps.apple.com/app/id6829102290?action=write-review")!
 

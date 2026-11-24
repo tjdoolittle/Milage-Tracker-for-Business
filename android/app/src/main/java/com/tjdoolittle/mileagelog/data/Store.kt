@@ -145,6 +145,7 @@ object Store {
     )
     const val IRS_SOURCE_URL = "https://www.irs.gov/tax-professionals/standard-mileage-rates"
     const val GOV_DISCLAIMER = "Tax Mileage Tracker is not affiliated with, endorsed by, or acting for the IRS or any government agency."
+    const val COPYRIGHT = "© 2026 Thomas Doolittle. All rights reserved."
     const val SUPPORT_EMAIL = "doolittle.thomas+apps@gmail.com"
 
     /** First-launch walkthrough: title to body. Pages 1 to 3 keep the owner's wording. */

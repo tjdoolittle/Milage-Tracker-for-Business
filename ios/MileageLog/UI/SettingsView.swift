@@ -48,7 +48,7 @@ struct SettingsView: View {
                         Label("Privacy policy", systemImage: "hand.raised")
                     }
                 } footer: {
-                    Text("Tax Mileage Tracker for iPhone · version \(appVersion)").font(Fonts.body(13)).foregroundStyle(Palette.muted)
+                    Text("Tax Mileage Tracker for iPhone · version \(appVersion)\n\(Store.copyright)").font(Fonts.body(13)).foregroundStyle(Palette.muted)
                 }
             }
             .font(Fonts.body())

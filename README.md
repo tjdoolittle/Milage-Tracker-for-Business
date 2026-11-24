@@ -38,3 +38,7 @@ All three use the same backup file format, so trips move between them
 The repo is public, so GitHub Actions minutes (including the Mac builds for
 iPhone) are free. No keys or passwords are in the code: the Android signing key
 and the Apple signing files live in the repo's Actions secrets.
+
+## License
+
+Copyright (c) 2026 Thomas Doolittle. All rights reserved. The source is published for viewing only; see [LICENSE](LICENSE).

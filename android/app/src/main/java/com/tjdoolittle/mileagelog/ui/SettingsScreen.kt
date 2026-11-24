@@ -234,7 +234,7 @@ fun SettingsScreen(data: AppData, year: Int, resumeTick: Int, onClose: () -> Uni
             }
             AppearanceCard(s.theme)
             HelpCard()
-            Text("Tax Mileage Tracker for Android · version ${versionName(ctx)}", style = Type.small, color = p.muted, modifier = Modifier.padding(bottom = 16.dp))
+            Text("Tax Mileage Tracker for Android · version ${versionName(ctx)}\n${Store.COPYRIGHT}", style = Type.small, color = p.muted, modifier = Modifier.padding(bottom = 16.dp))
         }
     }
     disclose?.let { action ->
