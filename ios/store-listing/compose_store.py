@@ -21,7 +21,7 @@ SOFT = (207, 231, 220)
 # Upload order. Only the first three show in search results, so they tell the core story:
 # the app logs the drive, you tap Business, and the year adds up.
 SLIDES = [
-    ("2-drive-detected", "Logs drives on its own", "Automatic detection measures each trip with your phone in your pocket.", GREEN),
+    ("2-drive-detected", "Logs your drives automatically", "Turn it on once and GPS measures every trip. No tapping while you drive.", GREEN),
     ("3-review", "Business or personal? One tap.", "GPS miles and addresses fill in. Add the purpose and save.", GREEN),
     ("1-home", "Every business mile, added up", "Your miles and IRS deduction for the year, at a glance.", GREEN),
     ("6-report", "A tax report, ready to hand over", "Totals, Schedule C vehicle miles, parking and tolls, and every trip, as a PDF.", GREEN),

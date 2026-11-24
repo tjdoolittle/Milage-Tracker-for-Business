@@ -14,7 +14,7 @@ BODY = FONTS + "atkinson_regular.ttf"
 GREEN, DARK, SOFT, WHITE = (10, 106, 74), (14, 19, 17), (207, 231, 220), (255, 255, 255)
 
 SLIDES = [   # upload order: the first three tell the core story
-    ("1-drive-detected", "Logs drives on its own", "Automatic detection measures each trip with your phone in your pocket.", GREEN),
+    ("1-drive-detected", "Logs your drives automatically", "Turn it on once and GPS measures every trip. No tapping while you drive.", GREEN),
     ("2-review", "Business or personal? One tap.", "GPS miles and addresses fill in. Pick a purpose and save.", GREEN),
     ("3-home", "Every business mile, added up", "Your miles and IRS deduction for the year, at a glance.", GREEN),
     ("6-report", "A tax report, ready to hand over", "Totals, Schedule C vehicle miles, parking and tolls, and every trip, as a PDF.", GREEN),
